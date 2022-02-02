@@ -20,6 +20,12 @@ class Config:
         "license": {"name": "Apache v2 License"},
     }
 
+    MINIO_ENDPOINT = 'localhost:9000'
+    MINIO_USER = "minio"
+    MINIO_PASSWORD = "minio123"
+    MINIO_SECURITY = False
+
+
     @staticmethod
     def init_app(app):
         pass

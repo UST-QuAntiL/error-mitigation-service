@@ -1,6 +1,6 @@
-from api.controller import encoding, algorithms
+from api.controller import cmgen, rem, mmgen
 
-MODULES = (encoding, algorithms)
+MODULES = (cmgen, rem, mmgen)
 
 
 def register_blueprints(api):
