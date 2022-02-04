@@ -56,7 +56,7 @@ def generate_mm_from_cm(json):
 
 def retrieve_mm(req: MMGetRequest):
     #TODO age should depend on cm age etc. split load cm and load mm maybe
-    return load_matrix_object_from_db(qpu=req.qpu, qubits=req.qubits, method=req.mitmethod, max_age=req.max_age)
+    return load_matrix_object_from_db(qpu=req.qpu, matrix_type=MatrixType.mm, qubits=req.qubits, method=req.mitmethod, max_age=req.max_age)
 
 
 

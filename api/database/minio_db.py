@@ -161,7 +161,7 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
         return_matrix = sorted(matrix_list, key=lambda x: x["cmgendate"])[-1]
 
     max_age = kwargs['max_age'] if 'max_age' in kwargs.keys() else None
-    if return_matrix and ( max_age is None or (datetime.now() - datetime.strptime(return_matrix["cmgendate"], "%Y-%m-%d,_%H-%M-%S")).total_seconds()/60 < kwargs['max_age']):
+    if return_matrix and ( max_age is None or (datetime.now() - datetime.strptime(return_matrix["cmgendate"], "%Y-%m-%d_%H-%M-%S")).total_seconds()/60 < kwargs['max_age']):
         try:
             response = client.get_object(bucket,return_matrix["name"])
             matrix_data = io.BytesIO(response.data)
