@@ -149,7 +149,7 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     if qubits or cmgenmethod or mmgenmethod:
         fitting_matrices = matrix_list
         if qubits is not None:
-            fitting_matrices = [matrix for matrix in fitting_matrices if set(qubits) <= set(matrix["qubits"])]
+            fitting_matrices = [matrix for matrix in fitting_matrices if set(qubits) == set(matrix["qubits"])]
         if cmgenmethod is not None:
             fitting_matrices = [matrix for matrix in fitting_matrices if cmgenmethod == matrix["cmgenmethod"]]
         if mmgenmethod is not None:
@@ -218,7 +218,7 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     if qubits or cmgenmethod or mmgenmethod:
         fitting_matrices = matrix_list
         if qubits is not None:
-            fitting_matrices = [matrix for matrix in fitting_matrices if set(qubits) <= set(matrix["qubits"])]
+            fitting_matrices = [matrix for matrix in fitting_matrices if set(qubits) == set(matrix["qubits"])]
         if cmgenmethod is not None:
             fitting_matrices = [matrix for matrix in fitting_matrices if cmgenmethod == matrix["cmgenmethod"]]
         if mmgenmethod is not None:

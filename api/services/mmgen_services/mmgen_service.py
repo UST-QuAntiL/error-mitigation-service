@@ -39,7 +39,9 @@ def generate_mthree_mitigator(json):
         backend = IonQProvider(token).get_backend(qpu)
     mit = mthree.M3Mitigation(backend)
     mit.cals_from_system(qubits, shots=shots)
-    store_matrix_object_in_db(matrix=mit.to, qpu=qpu, matrix_type=MatrixType.mm, qubits=qubits, cmgenmethod=mitmethod, mitmethod=mitmethod, cmgendate = datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    calstmp = mit.cals_to_matrices()
+
+    store_matrix_object_in_db(matrix=calstmp, qpu=qpu, matrix_type=MatrixType.mm, qubits=qubits, cmgenmethod=mitmethod, mitmethod=mitmethod, cmgendate = datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
     if provider == "ibm":
         IBMQ.disable_account()
 

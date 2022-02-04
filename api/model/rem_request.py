@@ -12,7 +12,7 @@ class REMRequest:
 
 
 class REMRequestSchema(ma.Schema):
-    counts = ma.fields.List(ma.fields.Integer())
+    counts = ma.fields.Raw(required=True)
     applmethod = ma.fields.String()
     cmgenmethod = ma.fields.String()
     mitmethod = ma.fields.String()

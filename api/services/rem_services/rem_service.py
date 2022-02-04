@@ -1,11 +1,13 @@
 from api.database.minio_db import load_matrix_object_from_db
 from api.model.matrix_types import MatrixType
-from api.services.rem_services.mitigation_application import MatrixMultiplication
+from api.services.rem_services.mitigation_application import MatrixMultiplication,MthreeApplication
 
 
 def application_generator(method):
     if method == "multiplication":
         return MatrixMultiplication()
+    if method == "mthree":
+        return MthreeApplication()
 
 # TODO just forward json for more flexibility
 def mitigate_results(json):
@@ -19,11 +21,15 @@ def mitigate_results(json):
 
     application_method = application_generator(applmethod)
     mitigator = None
-    try:
-        mitigator, _ = load_matrix_object_from_db(qpu=qpu, qubits=qubits, matrix_type=MatrixType.mm, cmgenmethod=cmgenmethod, max_age=max_age)
-        return application_method.appyl_mitigation(mitigator, counts=counts)
-    except:
-        return "Mitigator not available"
+    mitigator, _ = load_matrix_object_from_db(qpu=qpu, qubits=qubits, matrix_type=MatrixType.mm,
+                                              cmgenmethod=cmgenmethod, max_age=max_age)
+    res = application_method.appyl_mitigation(mitigator, counts=counts, qubits=qubits)
+    return res
+    # try:
+    #
+    # except:
+    #     return "Mitigator not available"
+
 
 
 if __name__ == "__main__":

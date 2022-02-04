@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+
+import mthree
 import numpy as np
-# from mthree import M3Mitigation
+from api.utils.helper_functions import array_to_dict, dict_to_array
 
 
 class MitigationApplication(ABC):
@@ -11,21 +13,32 @@ class MitigationApplication(ABC):
 
 class MatrixMultiplication(MitigationApplication):
     def appyl_mitigation(self, mitigator, **kwargs):
-        return list(np.matmul(mitigator, kwargs['counts']))
-
-class Mthree(MitigationApplication):
-    def appyl_mitigation(self, mitigator, **kwargs):
-        result = mitigator.apply_correction(kwargs['counts'], kwargs['qubits'], distance=10)
         n_qubits = len(kwargs['qubits'])
-        prob_dist_dict = result.nearest_probability_distribution()
-        y = np.zeros(2 ** n_qubits, dtype=int)
-        for i in range(2 ** n_qubits):
-            number = "0" * (n_qubits - 1 - int(np.log2(i)) if i > 0 else n_qubits - 1) + bin(i)[2:]
-            if prob_dist_dict.__contains__(
-                    "0" * (n_qubits - 1 - int(np.log2(i)) if i > 0 else n_qubits - 1) + bin(i)[2:]):
-                y[i] = prob_dist_dict["0" * (n_qubits - 1 - int(np.log2(i)) if i > 0 else n_qubits - 1) + bin(i)[
-                                                                                                          2:]] * result.shots
-        return y
+        counts = kwargs['counts']
+        array_counts = dict_to_array(counts,n_qubits)
+        res = list(np.matmul(mitigator, array_counts))
+        return array_to_dict(res,n_qubits)
+
+
+class MthreeApplication(MitigationApplication):
+    def appyl_mitigation(self, mitigator, **kwargs):
+        mit = mthree.M3Mitigation()
+        mit.cals_from_matrices(mitigator)
+
+
+        # result = mitigator.apply_correction(kwargs['counts'], kwargs['qubits'], distance=10)
+        print(kwargs['counts'], kwargs['qubits'])
+        counts= kwargs['counts']
+        qubits=kwargs['qubits']
+
+        result = mit.apply_correction(counts, qubits)
+
+        newdict = {}
+        for key, value in result.nearest_probability_distribution().items():
+            newdict[key] = int(value * result.shots)
+        mit_counts = newdict
+
+        return mit_counts
 
 
 
