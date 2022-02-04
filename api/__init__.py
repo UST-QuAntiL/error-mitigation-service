@@ -2,7 +2,7 @@ from flask import Flask
 from config import config
 from api.controller import register_blueprints
 from flask_smorest import Api
-from flask_cors import CORS, cross_origin
+
 
 
 def create_app(config_name):

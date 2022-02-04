@@ -1,3 +1,7 @@
+import mthree
+from qiskit import IBMQ
+from qiskit_ionq import IonQProvider
+
 from api.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
 from api.model.matrix_types import MatrixType
 from api.model.mmgen_request import MMGetRequest
@@ -5,6 +9,7 @@ from api.services.cmgen_services.cmgen_service import generate_cm
 from api.services.mmgen_services.mitigation_generator import MatrixInversion
 from api.services.cmgen_services.cmgen_service import retrieve_generator, retrieve_executor
 from datetime import datetime
+from qiskit.test.mock import FakeSantiago, FakeMontreal
 
 def mitigation_generator(method):
     if method == "inversion":
@@ -14,9 +19,29 @@ def generate_mm(json):
     mitmethod = json.get("mitmethod")
     if mitmethod == "tpnm":
         generate_mm_from_skratch(json)
+    elif mitmethod == "mthree":
+        generate_mthree_mitigator(json)
     else:
         generate_mm_from_cm(json)
 
+def generate_mthree_mitigator(json):
+    qubits = json.get("qubits")
+    qpu = json.get("qpu")
+    token = json.get("token")
+    shots = json.get("shots")
+    mitmethod = json.get("mitmethod").lower()
+    provider = json.get("provider").lower()
+    if provider == "ibm":
+        IBMQ.enable_account(token)
+        backend = IBMQ.get_provider().get_backend(qpu)
+        backend = FakeMontreal()
+    elif provider == "ionq":
+        backend = IonQProvider(token).get_backend(qpu)
+    mit = mthree.M3Mitigation(backend)
+    mit.cals_from_system(qubits, shots=shots)
+    store_matrix_object_in_db(matrix=mit.to, qpu=qpu, matrix_type=MatrixType.mm, qubits=qubits, cmgenmethod=mitmethod, mitmethod=mitmethod, cmgendate = datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    if provider == "ibm":
+        IBMQ.disable_account()
 
 def generate_mm_from_skratch(json):
     qubits = json.get("qubits")
@@ -64,4 +89,5 @@ def retrieve_mm(req: MMGetRequest):
 if __name__ == "__main__":
     # json = {'cmgenmethod': 'standard', 'mitmethod':'inversion', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'IBM', 'shots': 10, 'token': '350a71abf1741a8ad3a59a15f57dd56fa8c9621c27377fd43132c660d6dd47210577697228245e8d531130ed265c2589910bef4d3957580573edfd03c3157b84'}
     json = {'cmgenmethod': 'tpnm', 'mitmethod':'tpnm', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'IBM', 'shots': 10, 'token': '350a71abf1741a8ad3a59a15f57dd56fa8c9621c27377fd43132c660d6dd47210577697228245e8d531130ed265c2589910bef4d3957580573edfd03c3157b84'}
+    json = {'cmgenmethod': 'mthree', 'mitmethod':'mthree', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'IBM', 'shots': 10, 'token': '350a71abf1741a8ad3a59a15f57dd56fa8c9621c27377fd43132c660d6dd47210577697228245e8d531130ed265c2589910bef4d3957580573edfd03c3157b84'}
     print(generate_mm(json))

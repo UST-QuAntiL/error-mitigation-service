@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import matplotlib.pyplot as plt
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.tools.visualization import circuit_drawer
 from qiskit.ignis.mitigation import complete_meas_cal, CompleteMeasFitter, tensored_meas_cal
@@ -68,17 +67,18 @@ class CTMPCMGenerator(CircuitGenerator):
         return mitigator_ctmp.assignment_matrix()
 
 
-class MthreeCMGenerator(CircuitGenerator):
-
-    def generate_cm_circuits(self, qubits):
-        # TODO choose correct qubits, TODO check setup
-        mit = mthree.M3Mitigation(backend)
-        mit.cals_from_system(qubits, shots)
-        return mit
-
-    def compute_cm(self, results, labels):
-        meas_fitter = CompleteMeasFitter(results, labels, circlabel='mcal')
-        return meas_fitter.cal_matrix
+# class MthreeCMGenerator():
+#     def generate_cm_circuits(self, qubits):
+#         backend = FakeCasablanca()
+#         mit = mthree.M3Mitigation(backend)
+#         mit.cals_from_system(range(6))
+#
+#     def compute_cm(self, results, labels):
+#         meas_fitter = CompleteMeasFitter(results, labels, circlabel='mcal')
+#         return meas_fitter.cal_matrix
+#
+#     def compute_mm(self, ):
+#         pass
 
 if __name__ == "__main__":
     generator = TPNMCMGenerator()

@@ -1,4 +1,5 @@
 from api.database.minio_db import load_matrix_object_from_db
+from api.model.matrix_types import MatrixType
 from api.services.rem_services.mitigation_application import MatrixMultiplication
 
 
@@ -19,7 +20,7 @@ def mitigate_results(json):
     application_method = application_generator(applmethod)
     mitigator = None
     try:
-        mitigator, _ = load_matrix_object_from_db(qpu=qpu, qubits=qubits, type="mm", method=cmgenmethod, max_age=max_age)
+        mitigator, _ = load_matrix_object_from_db(qpu=qpu, qubits=qubits, matrix_type=MatrixType.mm, method=cmgenmethod, max_age=max_age)
     except:
         return "Mitigator not available"
     finally:

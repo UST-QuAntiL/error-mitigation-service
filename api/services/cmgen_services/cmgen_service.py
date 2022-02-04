@@ -2,7 +2,7 @@ from api.database.minio_db import store_matrix_object_in_db, load_matrix_object_
 from api.model.cmgen_request import CMGetRequest
 from api.model.matrix_types import MatrixType
 from api.services.cmgen_services.circuit_executor import IBMCircuitExecutor,  IonQCircuitExecutor, RigettiCircuitExecutor
-from api.services.cmgen_services.circuit_generator import StandardCMGenerator, MthreeCMGenerator, CTMPCMGenerator, TPNMCMGenerator
+from api.services.cmgen_services.circuit_generator import StandardCMGenerator, CTMPCMGenerator, TPNMCMGenerator
 
 
 def retrieve_executor(provider):
@@ -20,8 +20,8 @@ def retrieve_generator(method):
         return TPNMCMGenerator()
     if method == "ctmp":
         return CTMPCMGenerator()
-    if method == "mthree":
-        return MthreeCMGenerator()
+    # if method == "mthree":
+    #     return MthreeCMGenerator()
 
 
 # TODO just forward json for more flexibility
