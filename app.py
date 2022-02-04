@@ -20,3 +20,6 @@ def test():
         exit(0)
     else:
         exit(1)
+
+if __name__ == "__main__":
+    app.run()

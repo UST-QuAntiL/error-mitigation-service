@@ -12,7 +12,7 @@ def mitigate_results(json):
     qubits = json.get("qubits")
     qpu = json.get("qpu")
     mitmethod = json.get("mitmethod")
-    cmgenmethod = json.get("mmgenmethod")
+    cmgenmethod = json.get("cmgenmethod")
     applmethod = json.get("applmethod")
     max_age = json.get("maxage")
     counts = json.get("counts")
@@ -20,12 +20,10 @@ def mitigate_results(json):
     application_method = application_generator(applmethod)
     mitigator = None
     try:
-        mitigator, _ = load_matrix_object_from_db(qpu=qpu, qubits=qubits, matrix_type=MatrixType.mm, method=cmgenmethod, max_age=max_age)
+        mitigator, _ = load_matrix_object_from_db(qpu=qpu, qubits=qubits, matrix_type=MatrixType.mm, cmgenmethod=cmgenmethod, max_age=max_age)
+        return application_method.appyl_mitigation(mitigator, counts=counts)
     except:
         return "Mitigator not available"
-    finally:
-        return application_method.appyl_mitigation(mitigator, counts=counts)
-
 
 
 if __name__ == "__main__":

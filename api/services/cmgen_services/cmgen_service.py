@@ -42,7 +42,7 @@ def generate_cm(json):
 
 
 def retrieve_cm(req: CMGetRequest):
-    return load_matrix_object_from_db(qpu=req.qpu, qubits=req.qubits, method=req.method, max_age=req.max_age)
+    return load_matrix_object_from_db(qpu=req.qpu, matrix_type=MatrixType.cm, qubits=req.qubits, method=req.method, max_age=req.max_age)
 
 
 
