@@ -13,6 +13,7 @@ class MitigationGenerator(ABC):
 
 class MatrixInversion(MitigationGenerator):
     def generate_mitigator(self, cm, **kwargs):
+
         return np.linalg.inv(cm)
 
 
