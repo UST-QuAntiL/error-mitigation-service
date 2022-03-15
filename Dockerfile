@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM python:3.8-slim
 
 MAINTAINER Martin Beisel "martin.beisel@iaas.uni-stuttgart.de"
 
