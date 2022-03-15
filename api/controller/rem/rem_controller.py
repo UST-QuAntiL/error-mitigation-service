@@ -13,7 +13,7 @@ blp = Blueprint(
 @blp.route("/", methods=["POST"])
 @blp.arguments(
     REMRequestSchema,
-    example=dict(qpu="ibmq_lima", applmethod = "multiplication",counts={
+    example=dict(qpu="ibmq_lima", mitmethod ='inversion',counts={
     "000": 117,
     "001": 121,
     "010": 122,

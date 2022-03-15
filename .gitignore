@@ -10,10 +10,11 @@ __pycache__/
 
 #python env
 /venv/*
+/pychvenv/*
 
 
 #Intellij
 /.idea/*
 
-
-
+# qpu credentials
+credentials.py

@@ -3,10 +3,8 @@ from qiskit import QiskitError
 from qiskit.ignis.mitigation.expval.ctmp_fitter import fit_ctmp_meas_mitigator
 from qiskit.ignis.mitigation.expval.utils import assignment_matrix
 
-
 from qiskit.ignis.mitigation import ExpvalMeasMitigatorFitter, CompleteExpvalMeasMitigator, CTMPExpvalMeasMitigator
 
-from api.services.cmgen_services.sparse_ctmp_mitigator import SparseCTMPExpvalMeasMitigator
 from api.services.cmgen_services.sparse_tensored_mitigator import SparseTensoredExpvalMeasMitigator
 
 
@@ -15,7 +13,7 @@ class SparseExpvalMeasMitigatorFitter(ExpvalMeasMitigatorFitter):
             generators: Optional[List[Generator]] = None) -> Union[
         CompleteExpvalMeasMitigator,
         SparseTensoredExpvalMeasMitigator,
-        SparseCTMPExpvalMeasMitigator]:
+        CTMPExpvalMeasMitigator]:
         """Fit and return the Mitigator object from the calibration data."""
 
         if method is None:

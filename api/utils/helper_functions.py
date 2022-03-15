@@ -17,6 +17,28 @@ def array_to_dict(counts_array: list, n_qubits: int):
     return dict
 
 
+
+def sort_dict_by_qubitorder(counts_dict:dict, counts_qubits: list, mitigator_qubits: list):
+    """
+    :param counts_dict: dictionary containing measurement counts
+    :param counts_qubits:  list containing qubit order of measurement qubits
+    :param mitigator_qubits:  list containing qubit order when creating mitigator
+    :return:
+    """
+    mapping = []
+    for i in mitigator_qubits:
+        mapping.append(counts_qubits.index(i))
+    sorted_dict = {}
+    for key, value in counts_dict.items():
+        newkey = ''
+        for i in mapping:
+            newkey += key[i]
+        sorted_dict[newkey] = value
+    return sorted_dict
+
+
+
+
 # qubits [2,4,1]
 # qubits_mm[0,1,2,4,5]
 # mapping_to_array_position [2,3,1]
@@ -50,7 +72,11 @@ def countsdict_to_array(dict, qubits, qubits_mm):
 
 if __name__ == "__main__":
     dict = {'111': 129, '000': 131, '101': 134, '100': 142, '011': 97, '110': 117, '001': 125, '010': 125}
-    qubits =[2,4,1]
-    qubits_mm = [0,1,2,4,5]
+    # qubits =[2,4,1]
+    # qubits_mm = [0,1,2,4,5]
+    #
+    # countsdict_to_array(dict,qubits,qubits_mm)
 
-    countsdict_to_array(dict,qubits,qubits_mm)
+    counts_qubits = [4,2,7]
+    mitiagor_qubits= [7,4,2]
+    sort_dict_by_qubitorder(dict,counts_qubits,mitiagor_qubits)

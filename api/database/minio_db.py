@@ -27,7 +27,7 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
             cmgenmethod: Method used for the generation of the calibration matrix
-            mmgenmethod: Method used for the generation of the mitigation matrix
+            mitmethod: Method used for the generation of the mitigation matrix
             cmgendate: Date of cm generation
     :return:
     """
@@ -41,8 +41,6 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
     matrix_data.seek(0)
     size =matrix_data.getbuffer().nbytes
 
-
-
     # Make QPU bucket if not exist.
     found = client.bucket_exists(bucket)
     if not found:
@@ -51,8 +49,7 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
     else:
         print("Bucket '" + bucket + "' already exists")
 
-    # TODO delte file or don't save as file and directly upload - or other temp directory
-    # Upload SOURCE_FILEPATH as object name FILENAME to bucket QPU
+
     metadata = {"CreationDate": filedate}
     if matrix_type is MatrixType.cm:
         metadata['cmgendate'] = filedate
@@ -77,7 +74,7 @@ def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs)
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
             cmgenmethod: Method used for the generation of the calibration matrix
-            mmgenmethod: Method used for the generation of the mitigation matrix
+            mitmethod: Method used for the generation of the mitigation matrix
             cmgendate: Date of cm generation
     :return:
     """
@@ -120,7 +117,7 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
             cmgenmethod: Method used for the generation of the calibration matrix
-            mmgenmethod: Method used for the generation of the mitigation matrix
+            mitmethod: Method used for the generation of the mitigation matrix
             max_age: Maximum time since the execution of the calibration circuits
     :return:
     """
@@ -131,29 +128,21 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
 
     matrix_list =[]
     for obj in objects:
-        metadata = {"name": obj.object_name
-                    }
-        for key, value in obj.metadata.items():
-            if key == 'X-Amz-Meta-Qubits':
-                metadata["qubits"] = [int(i) for i in obj.metadata.get('X-Amz-Meta-Qubits').split(',')]
-            else:
-                updatedKey= str(key).replace('X-Amz-Meta-','').lower()
-                metadata[updatedKey]= value
-        matrix_list.append(metadata)
+        matrix_list.append(get_obj_metadata(obj))
 
     return_matrix = None
 
     qubits = kwargs['qubits'] if 'qubits' in kwargs.keys() else None
     cmgenmethod = kwargs['cmgenmethod'] if 'cmgenmethod' in kwargs.keys() else None
-    mmgenmethod = kwargs['mmgenmethod'] if 'mmgenmethod' in kwargs.keys() else None
-    if qubits or cmgenmethod or mmgenmethod:
+    mitmethod = kwargs['mitmethod'] if 'mitmethod' in kwargs.keys() else None
+    if qubits or cmgenmethod or mitmethod:
         fitting_matrices = matrix_list
         if qubits is not None:
             fitting_matrices = [matrix for matrix in fitting_matrices if set(qubits) == set(matrix["qubits"])]
         if cmgenmethod is not None:
             fitting_matrices = [matrix for matrix in fitting_matrices if cmgenmethod == matrix["cmgenmethod"]]
-        if mmgenmethod is not None:
-            fitting_matrices = [matrix for matrix in fitting_matrices if mmgenmethod == matrix["mmgenmethod"]]
+        if mitmethod is not None:
+            fitting_matrices = [matrix for matrix in fitting_matrices if mitmethod == matrix["mitmethod"]]
 
         if fitting_matrices:
             return_matrix = sorted(fitting_matrices, key=lambda x: x["cmgendate"])[-1]
@@ -175,9 +164,28 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
             response.release_conn()
             return matrix, return_matrix
     else:
-        return
+        return None, None
 
 
+def load_mitigator_object_from_db_by_filename(qpu: str, matrix_type: MatrixType, filename:str):
+    qpu = qpu.replace('_', '-')
+    bucket = qpu + "-"+matrix_type.name
+    objects = client.list_objects(bucket, include_user_meta=True)
+
+    for obj in objects:
+        if obj.object_name == filename:
+            metadata = get_obj_metadata(obj)
+            break
+
+    try:
+        response = client.get_object(bucket, filename)
+        matrix_data = io.BytesIO(response.data)
+        matrix_data.seek(0)
+        matrix = pickle.load(matrix_data)
+    finally:
+        response.close()
+        response.release_conn()
+        return matrix, metadata
 
 
 #TODO maxsize, priority, date ...
@@ -189,7 +197,7 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
             cmgenmethod: Method used for the generation of the calibration matrix
-            mmgenmethod: Method used for the generation of the mitigation matrix
+            mitmethod: Method used for the generation of the mitigation matrix
             max_age: Maximum time since the execution of the calibration circuits
     :return:
     """
@@ -200,29 +208,20 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
 
     matrix_list =[]
     for obj in objects:
-        metadata = {"name": obj.object_name
-                    }
-        for key, value in obj.metadata.items():
-            if key == 'X-Amz-Meta-Qubits':
-                metadata["qubits"] = [int(i) for i in obj.metadata.get('X-Amz-Meta-Qubits').split(',')]
-            else:
-                updatedKey= str(key).replace('X-Amz-Meta-','').lower()
-                metadata[updatedKey]= value
-        matrix_list.append(metadata)
-
+        matrix_list.append(get_obj_metadata(obj))
     return_matrix = None
 
     qubits = kwargs['qubits'] if 'qubits' in kwargs.keys() else None
     cmgenmethod = kwargs['cmgenmethod'] if 'cmgenmethod' in kwargs.keys() else None
-    mmgenmethod = kwargs['mmgenmethod'] if 'mmgenmethod' in kwargs.keys() else None
-    if qubits or cmgenmethod or mmgenmethod:
+    mitmethod = kwargs['mitmethod'] if 'mitmethod' in kwargs.keys() else None
+    if qubits or cmgenmethod or mitmethod:
         fitting_matrices = matrix_list
         if qubits is not None:
             fitting_matrices = [matrix for matrix in fitting_matrices if set(qubits) == set(matrix["qubits"])]
         if cmgenmethod is not None:
             fitting_matrices = [matrix for matrix in fitting_matrices if cmgenmethod == matrix["cmgenmethod"]]
-        if mmgenmethod is not None:
-            fitting_matrices = [matrix for matrix in fitting_matrices if mmgenmethod == matrix["mmgenmethod"]]
+        if mitmethod is not None:
+            fitting_matrices = [matrix for matrix in fitting_matrices if mitmethod == matrix["mitmethod"]]
 
         if fitting_matrices:
             return_matrix = sorted(fitting_matrices, key=lambda x: x["cmgendate"])[-1]
@@ -240,15 +239,19 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     else:
         return
 
-# if __name__ == "__main__":
-    # a = [[1,2],[3,4.1]]
-    # store_matrix_file_in_db(matrix=a, qpu='ibmq-test', matrix_type=MatrixType.cm, qubits=[0,1,2,3,4], cmgenmethod="standard", test="1")
-    # res = load_matrix_file_from_db(qpu="ibmq-test", matrix_type=MatrixType.cm, qubits=[1, 2, 3, 4])
-    # print(res)
 
-# if __name__ == "__main__":
-#     res = load_matrix_file_from_db("ibmq-lima", matrix_type="cm", method="standard", max_age=43)
-#     print(res)
+def get_obj_metadata(obj):
+    metadata = {"name": obj.object_name
+                }
+    for key, value in obj.metadata.items():
+        if key == 'X-Amz-Meta-Qubits':
+            metadata["qubits"] = [int(i) for i in obj.metadata.get('X-Amz-Meta-Qubits').split(',')]
+        else:
+            updatedKey = str(key).replace('X-Amz-Meta-', '').lower()
+            metadata[updatedKey] = value
+    return metadata
+
+
 if __name__ == "__main__":
     a = [[1.123123123123123123123123123, 2], [3, 4.1]]
     store_matrix_object_in_db(matrix=a, qpu='ibmq-test', matrix_type=MatrixType.cm, qubits=[0,1,2,3,4], cmgenmethod="standard", test="1")

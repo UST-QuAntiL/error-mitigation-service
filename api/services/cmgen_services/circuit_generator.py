@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.tools.visualization import circuit_drawer
-from qiskit.ignis.mitigation import complete_meas_cal, CompleteMeasFitter, tensored_meas_cal
+from qiskit.ignis.mitigation import CompleteMeasFitter, tensored_meas_cal
 import qiskit.ignis.mitigation as mit
-# import mthree
-# from api.services.cmgen_services.sparse_fitter import SparseExpvalMeasMitigatorFitter
 from api.services.cmgen_services.sparse_fitter import SparseExpvalMeasMitigatorFitter
 
 
@@ -18,7 +15,6 @@ class CircuitGenerator(ABC):
 
 class StandardCMGenerator(CircuitGenerator):
     def generate_cm_circuits(self, qubits):
-        # TODO choose correct qubits
         state_labels = [bin(j)[2:].zfill(len(qubits)) for j in range(2 ** len(qubits))]
         circuits, _ = tensored_meas_cal([qubits], circlabel='mcal')
         return circuits, state_labels
@@ -29,7 +25,6 @@ class StandardCMGenerator(CircuitGenerator):
 
 
 class TPNMCMGenerator(CircuitGenerator):
-
     def generate_cm_circuits(self, qubits):
         circuit_size = max(qubits)
         qr = QuantumRegister(circuit_size+ 1)
@@ -51,12 +46,11 @@ class TPNMCMGenerator(CircuitGenerator):
 
     def compute_sparse_mm(self, results, labels, sparsity = 1e-5):
         mitigator_tensored = SparseExpvalMeasMitigatorFitter(results, labels).fit()
-        # return mitigator_tensored.mitigation_matrix(sparsity_factor=sparsity)
-        return mitigator_tensored.mitigation_matrix(sparsity_factor=1e-4)
+        return mitigator_tensored.mitigation_matrix(sparsity_factor=sparsity)
+        # return mitigator_tensored.mitigation_matrix(sparsity_factor=1e-4)
 
 
 class CTMPCMGenerator(CircuitGenerator):
-
     def generate_cm_circuits(self, qubits):
         # TODO choose correct qubits
         circuits, state_labels = mit.expval_meas_mitigator_circuits(qubits.size, method='CTMP')
@@ -67,19 +61,7 @@ class CTMPCMGenerator(CircuitGenerator):
         return mitigator_ctmp.assignment_matrix()
 
 
-# class MthreeCMGenerator():
-#     def generate_cm_circuits(self, qubits):
-#         backend = FakeCasablanca()
-#         mit = mthree.M3Mitigation(backend)
-#         mit.cals_from_system(range(6))
-#
-#     def compute_cm(self, results, labels):
-#         meas_fitter = CompleteMeasFitter(results, labels, circlabel='mcal')
-#         return meas_fitter.cal_matrix
-#
-#     def compute_mm(self, ):
-#         pass
-
 if __name__ == "__main__":
     generator = TPNMCMGenerator()
-    generator.generate_cm_circuits([1,4,5,8])
+    generator = StandardCMGenerator()
+    generator.generate_cm_circuits([3,1,4,5,8])

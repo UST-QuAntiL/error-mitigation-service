@@ -25,7 +25,6 @@ class Config:
     MINIO_PASSWORD = "minio123"
     MINIO_SECURITY = False
 
-
     @staticmethod
     def init_app(app):
         pass

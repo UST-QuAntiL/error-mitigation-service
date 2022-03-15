@@ -2,7 +2,7 @@ from flask_smorest import Blueprint
 from flask import request
 
 from api.model.mmgen_request import MMGenRequestSchema, MMGenRequest, MMGetRequest
-from api.services.mmgen_services.mmgen_service import generate_mm, retrieve_mm
+from api.services.mitigator_gen_services.mmgen_service import generate_mm, retrieve_mm
 
 blp = Blueprint(
     "mm",
@@ -15,7 +15,7 @@ blp = Blueprint(
 @blp.route("/", methods=["POST"])
 @blp.arguments(
     MMGenRequestSchema,
-    example=dict(provider="IBM", qpu="ibmq_lima", method="standard", qubits=[0,1,2,4], shots = 1000, token="YOUR_TOKEN"),
+    example=dict(provider="IBM", qpu="ibmq_lima", method="standard", qubits=[0,1,2,4], shots = 1000, credentials="YOUR_CREDENTIALS"),
 )
 @blp.response(200)
 def generate(json: MMGenRequest):
@@ -31,8 +31,6 @@ def retrieve():
     mitmethod = str(request.args.get('mitmethod'))
     cmgenmethod = str(request.args.get('mitmethod'))
     qubits = request.args.get('qubits')
-    # TODO check qubit array - not tested yet
-    print(qubits)
     max_age = int(request.args.get('maxage'))
     req = MMGetRequest(qpu=qpu, cmgenmethod=cmgenmethod, mitmethod=mitmethod, qubits=qubits, max_age=max_age)
     return retrieve_mm(req)

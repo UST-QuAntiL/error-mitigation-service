@@ -17,7 +17,7 @@ blp = Blueprint(
 @blp.route("/", methods=["POST"])
 @blp.arguments(
     CMGenRequestSchema,
-    example=dict(provider="IBM", qpu="ibmq_lima", method="standard", qubits=[0,1,2,4], shots = 1000, token="YOUR_TOKEN"),
+    example=dict(provider="IBM", qpu="ibmq_lima", method="standard", qubits=[0,1,2,4], shots = 1000, credentials="YOUR_CREDENTIALS"),
 )
 @blp.response(200)
 def generate(json: CMGenRequest):
@@ -31,11 +31,11 @@ def generate(json: CMGenRequest):
 @blp.response(200)
 def retrieve():
     qpu = str(request.args.get('qpu'))
-    method = str(request.args.get('method'))
+    cmgenmethod = str(request.args.get('cmgenmethod'))
     qubits = request.args.get('qubits')
     # TODO check qubit array - not tested yet
     print(qubits)
     max_age = int(request.args.get('maxage'))
-    req = CMGetRequest(qpu=qpu, method=method, qubits=qubits, max_age=max_age)
+    req = CMGetRequest(qpu=qpu, cmgenmethod=cmgenmethod, qubits=qubits, max_age=max_age)
     cm, _ =  retrieve_cm(req)
     return cm
