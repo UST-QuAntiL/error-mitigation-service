@@ -54,9 +54,9 @@ services:
       - default
 
   error-mitigation-service:
-    #image: planqk/error-mitigation-service:v0.0.1
-    build: .
-    #command: app.py
+    #build: .
+    image: planqk/error-mitigation-service:v0.0.1
+    command: app.py
     ports:
       - "5071:5000"
     environment:
