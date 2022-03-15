@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.ignis.mitigation import CompleteMeasFitter, tensored_meas_cal
 import qiskit.ignis.mitigation as mit
-from api.services.cmgen_services.sparse_fitter import SparseExpvalMeasMitigatorFitter
+from app.services.cmgen_services.sparse_fitter import SparseExpvalMeasMitigatorFitter
 
 
 class CircuitGenerator(ABC):

@@ -1,13 +1,13 @@
-from api.database.minio_db import load_matrix_object_from_db, load_mitigator_object_from_db_by_filename
-from api.model.cmgen_request import CMGenRequest
-from api.model.matrix_types import MatrixType
-from api.model.rem_request import REMRequest
-from api.model.mmgen_request import MMGenRequest
-from api.services.cmgen_services.cmgen_service import generate_cm
-from api.services.mitigator_gen_services.mmgen_service import generate_mm
-from api.services.rem_services.mitigation_application import MatrixMultiplication, MthreeApplication, \
+from app.database.minio_db import load_matrix_object_from_db, load_mitigator_object_from_db_by_filename
+from app.model.cmgen_request import CMGenRequest
+from app.model.matrix_types import MatrixType
+from app.model.rem_request import REMRequest
+from app.model.mmgen_request import MMGenRequest
+from app.services.cmgen_services.cmgen_service import generate_cm
+from app.services.mitigator_gen_services.mmgen_service import generate_mm
+from app.services.rem_services.mitigation_application import MatrixMultiplication, MthreeApplication, \
     IterativeBayesApplication, IgnisUnfoldingApplication
-from api.utils.helper_functions import sort_dict_by_qubitorder
+from app.utils.helper_functions import sort_dict_by_qubitorder
 
 
 def application_generator(method):

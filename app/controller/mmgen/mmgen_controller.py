@@ -1,8 +1,8 @@
 from flask_smorest import Blueprint
 from flask import request
 
-from api.model.mmgen_request import MMGenRequestSchema, MMGenRequest, MMGetRequest
-from api.services.mitigator_gen_services.mmgen_service import generate_mm, retrieve_mm
+from app.model.mmgen_request import MMGenRequestSchema, MMGenRequest, MMGetRequest
+from app.services.mitigator_gen_services.mmgen_service import generate_mm, retrieve_mm
 
 blp = Blueprint(
     "mm",
@@ -21,7 +21,7 @@ blp = Blueprint(
 def generate(json: MMGenRequest):
     print(json)
     if json:
-        return generate_mm(json)
+        return generate_mm(MMGenRequest(**json))
 
 
 @blp.route("/", methods=["GET"])

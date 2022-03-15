@@ -1,4 +1,4 @@
-from api.controller import cmgen, rem, mmgen
+from app.controller import cmgen, rem, mmgen
 
 MODULES = (cmgen, rem, mmgen)
 

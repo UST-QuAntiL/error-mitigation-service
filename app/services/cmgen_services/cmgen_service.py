@@ -1,8 +1,8 @@
-from api.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
-from api.model.cmgen_request import CMGetRequest, CMGenRequest
-from api.model.matrix_types import MatrixType
-from api.services.cmgen_services.circuit_executor import IBMCircuitExecutor,  IonQCircuitExecutor, RigettiCircuitExecutor
-from api.services.cmgen_services.circuit_generator import StandardCMGenerator, CTMPCMGenerator, TPNMCMGenerator
+from app.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
+from app.model.cmgen_request import CMGetRequest, CMGenRequest
+from app.model.matrix_types import MatrixType
+from app.services.cmgen_services.circuit_executor import IBMCircuitExecutor,  IonQCircuitExecutor, RigettiCircuitExecutor
+from app.services.cmgen_services.circuit_generator import StandardCMGenerator, CTMPCMGenerator, TPNMCMGenerator
 
 
 def retrieve_executor(provider: str):

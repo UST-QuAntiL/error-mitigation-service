@@ -5,7 +5,7 @@ from qiskit.ignis.mitigation.expval.utils import assignment_matrix
 
 from qiskit.ignis.mitigation import ExpvalMeasMitigatorFitter, CompleteExpvalMeasMitigator, CTMPExpvalMeasMitigator
 
-from api.services.cmgen_services.sparse_tensored_mitigator import SparseTensoredExpvalMeasMitigator
+from app.services.cmgen_services.sparse_tensored_mitigator import SparseTensoredExpvalMeasMitigator
 
 
 class SparseExpvalMeasMitigatorFitter(ExpvalMeasMitigatorFitter):

@@ -2,7 +2,7 @@ import io
 import pickle
 from minio import Minio
 import sys
-from api.model.matrix_types import MatrixType
+from app.model.matrix_types import MatrixType
 from config import Config
 import os
 import numpy as np

@@ -26,4 +26,4 @@ class REMRequestSchema(ma.Schema):
     timeofexecution = ma.fields.DateTime(required=False)
     provider = ma.fields.String(required=False)
     shots = ma.fields.Integer(required=False)
-    credentials = ma.fields.String(required=False)
+    credentials = ma.fields.Raw(required=False)

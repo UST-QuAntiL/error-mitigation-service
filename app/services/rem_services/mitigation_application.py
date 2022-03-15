@@ -4,8 +4,8 @@ import mthree
 import numpy as np
 from scipy.optimize import minimize
 
-from api.utils.helper_functions import array_to_dict, dict_to_array
-from api.model.matrix_types import MatrixType
+from app.utils.helper_functions import array_to_dict, dict_to_array
+from app.model.matrix_types import MatrixType
 
 
 class MitigationApplication(ABC):

@@ -3,7 +3,7 @@ from ...model.cmgen_request import (
     CMGenRequest,
     CMGenRequestSchema, CMGetRequestSchema, CMGetRequest
 )
-from api.services.cmgen_services.cmgen_service import generate_cm, retrieve_cm
+from app.services.cmgen_services.cmgen_service import generate_cm, retrieve_cm
 from flask import request
 
 blp = Blueprint(
@@ -23,8 +23,7 @@ blp = Blueprint(
 def generate(json: CMGenRequest):
     print(json)
     if json:
-        res = generate_cm(json)
-        return res
+        return generate_cm(CMGenRequest(**json))
 
 
 @blp.route("/", methods=["GET"])

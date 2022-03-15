@@ -1,11 +1,11 @@
 import os
-from api import create_app
+from app import create_app
 
 app = create_app(os.getenv("FLASK_CONFIG") or "default")
 
 
 # Get coverage with:
-# coverage run --branch --include 'api/*' -m unittest discover
+# coverage run --branch --include 'app/*' -m unittest discover
 # coverage report
 # coverage xml
 @app.cli.command()
@@ -22,4 +22,4 @@ def test():
         exit(1)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')

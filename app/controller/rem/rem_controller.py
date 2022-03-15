@@ -1,6 +1,6 @@
 from flask_smorest import Blueprint
-from api.model.rem_request import REMRequestSchema, REMRequest
-from api.services.rem_services.rem_service import mitigate_results
+from app.model.rem_request import REMRequestSchema, REMRequest
+from app.services.rem_services.rem_service import mitigate_results
 
 blp = Blueprint(
     "rem",
@@ -28,5 +28,5 @@ blp = Blueprint(
 def algorithm(json: REMRequest):
     print(json)
     if json:
-        return mitigate_results(json)
+        return mitigate_results(REMRequest(**json))
 

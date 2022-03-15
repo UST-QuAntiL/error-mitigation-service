@@ -2,14 +2,14 @@ import mthree
 from qiskit import IBMQ
 from qiskit_ionq import IonQProvider
 
-from api.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
-from api.model.matrix_types import MatrixType
-from api.model.mmgen_request import MMGetRequest
-from api.services.cmgen_services.cmgen_service import generate_cm
-from api.services.mitigator_gen_services.mitigation_generator import MatrixInversion
-from api.services.cmgen_services.cmgen_service import retrieve_generator, retrieve_executor
-from api.model.mmgen_request import MMGenRequest
-from api.model.cmgen_request import CMGenRequest
+from app.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
+from app.model.matrix_types import MatrixType
+from app.model.mmgen_request import MMGetRequest
+from app.services.cmgen_services.cmgen_service import generate_cm
+from app.services.mitigator_gen_services.mitigation_generator import MatrixInversion
+from app.services.cmgen_services.cmgen_service import retrieve_generator, retrieve_executor
+from app.model.mmgen_request import MMGenRequest
+from app.model.cmgen_request import CMGenRequest
 from datetime import datetime
 from qiskit.test.mock import FakeMontreal
 
