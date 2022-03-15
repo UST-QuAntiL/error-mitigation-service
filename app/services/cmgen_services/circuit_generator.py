@@ -13,38 +13,42 @@ class CircuitGenerator(ABC):
     def compute_cm(self, results, labels):
         pass
 
+
 class StandardCMGenerator(CircuitGenerator):
     def generate_cm_circuits(self, qubits):
         state_labels = [bin(j)[2:].zfill(len(qubits)) for j in range(2 ** len(qubits))]
-        circuits, _ = tensored_meas_cal([qubits], circlabel='mcal')
+        circuits, _ = tensored_meas_cal([qubits], circlabel="mcal")
         return circuits, state_labels
 
     def compute_cm(self, results, labels):
-        meas_fitter = CompleteMeasFitter(results, labels, circlabel='mcal')
+        meas_fitter = CompleteMeasFitter(results, labels, circlabel="mcal")
         return meas_fitter.cal_matrix
 
 
 class TPNMCMGenerator(CircuitGenerator):
     def generate_cm_circuits(self, qubits):
         circuit_size = max(qubits)
-        qr = QuantumRegister(circuit_size+ 1)
+        qr = QuantumRegister(circuit_size + 1)
         cr = ClassicalRegister(len(qubits))
         qc0 = QuantumCircuit(qr, cr)
         qc1 = QuantumCircuit(qr, cr)
-        for e,i in enumerate(qubits):
+        for e, i in enumerate(qubits):
             qc1.x(i)
-            qc0.measure(qr[i],cr[e])
-            qc1.measure(qr[i],cr[e])
+            qc0.measure(qr[i], cr[e])
+            qc1.measure(qr[i], cr[e])
 
         circuits = [qc0, qc1]
-        state_labels = [{'experiment': 'meas_mit', 'cal': '0'*len(qubits), 'method': 'tensored'}, {'experiment': 'meas_mit', 'cal': '1'*len(qubits), 'method': 'tensored'}]
+        state_labels = [
+            {"experiment": "meas_mit", "cal": "0" * len(qubits), "method": "tensored"},
+            {"experiment": "meas_mit", "cal": "1" * len(qubits), "method": "tensored"},
+        ]
         return circuits, state_labels
 
     def compute_cm(self, results, labels):
         mitigator_tensored = mit.ExpvalMeasMitigatorFitter(results, labels).fit()
         return mitigator_tensored.assignment_matrix()
 
-    def compute_sparse_mm(self, results, labels, sparsity = 1e-5):
+    def compute_sparse_mm(self, results, labels, sparsity=1e-5):
         mitigator_tensored = SparseExpvalMeasMitigatorFitter(results, labels).fit()
         return mitigator_tensored.mitigation_matrix(sparsity_factor=sparsity)
         # return mitigator_tensored.mitigation_matrix(sparsity_factor=1e-4)
@@ -53,7 +57,9 @@ class TPNMCMGenerator(CircuitGenerator):
 class CTMPCMGenerator(CircuitGenerator):
     def generate_cm_circuits(self, qubits):
         # TODO choose correct qubits
-        circuits, state_labels = mit.expval_meas_mitigator_circuits(qubits.size, method='CTMP')
+        circuits, state_labels = mit.expval_meas_mitigator_circuits(
+            qubits.size, method="CTMP"
+        )
         return circuits, state_labels
 
     def compute_cm(self, results, labels):
@@ -64,4 +70,4 @@ class CTMPCMGenerator(CircuitGenerator):
 if __name__ == "__main__":
     generator = TPNMCMGenerator()
     generator = StandardCMGenerator()
-    generator.generate_cm_circuits([3,1,4,5,8])
+    generator.generate_cm_circuits([3, 1, 4, 5, 8])

@@ -6,26 +6,28 @@ from qiskit_ionq import IonQProvider
 from pyquil import get_qc
 from qiskit.test.mock import FakeMontreal
 
-class CircuitExecutor(ABC):
 
+class CircuitExecutor(ABC):
     @abstractmethod
     def execute_circuits(self, circuits, qpu, credentials, shots):
         pass
 
-class IBMCircuitExecutor(CircuitExecutor):
 
+class IBMCircuitExecutor(CircuitExecutor):
     def execute_circuits(self, circuits, qpu, credentials, shots):
         provider = IBMQ.enable_account(**credentials)
 
         backend = provider.get_backend(qpu)
         backend = FakeMontreal()
-        #TODO split when too many circuits
+        # TODO split when too many circuits
         # if type(backend) == IBMQBackend:
         #     jobmanager = IBMQJobManager()  # works only with IBMQBackend typed backend, splits experiments into jobs
         #     bulk_circuits = transpile(circuits, backend=backend)
         #     res = jobmanager.run(bulk_circuits, backend=backend, shots=shots).results()
         #     counts = [res.get_counts(i) for i in range(len(bulk_circuits))]
-        results = execute(circuits, backend=backend, shots=shots, optimization_level=0).result()
+        results = execute(
+            circuits, backend=backend, shots=shots, optimization_level=0
+        ).result()
         # TODO check if reverse is necessary
         reversed_result = {}
         # for key, value in results.items():
@@ -35,18 +37,18 @@ class IBMCircuitExecutor(CircuitExecutor):
 
 
 class IonQCircuitExecutor(CircuitExecutor):
-
     def execute_circuits(self, circuits, qpu, credentials, shots):
         provider = IonQProvider(credentials)
         backend = provider.get_backend(qpu)
-        return execute(circuits, backend=backend, shots=shots, optimization_level=0).result()
+        return execute(
+            circuits, backend=backend, shots=shots, optimization_level=0
+        ).result()
 
 
 class RigettiCircuitExecutor(CircuitExecutor):
-
     def execute_circuits(self, circuits, qpu, credentials, shots):
         qc = get_qc(qpu)
-        #TODO how to handle multiple programs/circuits
+        # TODO how to handle multiple programs/circuits
         executable = qc.compile(circuits)
         result = qc.run(executable)
         bitstrings = result.readout_data.get("ro")

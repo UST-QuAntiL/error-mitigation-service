@@ -1,8 +1,16 @@
 from app.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
 from app.model.cmgen_request import CMGetRequest, CMGenRequest
 from app.model.matrix_types import MatrixType
-from app.services.cmgen_services.circuit_executor import IBMCircuitExecutor,  IonQCircuitExecutor, RigettiCircuitExecutor
-from app.services.cmgen_services.circuit_generator import StandardCMGenerator, CTMPCMGenerator, TPNMCMGenerator
+from app.services.cmgen_services.circuit_executor import (
+    IBMCircuitExecutor,
+    IonQCircuitExecutor,
+    RigettiCircuitExecutor,
+)
+from app.services.cmgen_services.circuit_generator import (
+    StandardCMGenerator,
+    CTMPCMGenerator,
+    TPNMCMGenerator,
+)
 
 
 def retrieve_executor(provider: str):
@@ -14,6 +22,7 @@ def retrieve_executor(provider: str):
     if provider == "rigetti":
         return RigettiCircuitExecutor()
 
+
 def retrieve_generator(method: str):
     method = method.lower()
     if method == "standard":
@@ -24,28 +33,47 @@ def retrieve_generator(method: str):
         return CTMPCMGenerator()
 
 
-
 def generate_cm(request: CMGenRequest):
     generator = retrieve_generator(request.cmgenmethod)
     circuits, labels = generator.generate_cm_circuits(request.qubits)
     executor = retrieve_executor(request.provider.lower())
-    results = executor.execute_circuits(circuits, request.qpu, request.credentials, request.shots)
+    results = executor.execute_circuits(
+        circuits, request.qpu, request.credentials, request.shots
+    )
     cm = generator.compute_cm(results, labels)
-    return store_matrix_object_in_db(cm, request.qpu, MatrixType.cm, qubits = request.qubits, cmgenmethod = request.cmgenmethod)
+    return store_matrix_object_in_db(
+        cm,
+        request.qpu,
+        MatrixType.cm,
+        qubits=request.qubits,
+        cmgenmethod=request.cmgenmethod,
+    )
 
 
 def retrieve_cm(req: CMGetRequest):
-    return load_matrix_object_from_db(qpu=req.qpu, matrix_type=MatrixType.cm, qubits=req.qubits, method=req.cmgenmethod, max_age=req.max_age)
-
-
+    return load_matrix_object_from_db(
+        qpu=req.qpu,
+        matrix_type=MatrixType.cm,
+        qubits=req.qubits,
+        method=req.cmgenmethod,
+        max_age=req.max_age,
+    )
 
 
 if __name__ == "__main__":
     from credentials import Credentials as credentials
-    #STandard
+
+    # STandard
     # json = {'cmgenmethod': 'standard', 'qpu': 'ibmq_lima', 'provider': 'IBM', 'shots': 10, 'credentials': credentials.CREDENTIALS_US, 'qubits': [1, 2, 3, 7]}
-    #TPNM
-    json = {'cmgenmethod': 'tpnm', 'qpu': 'ibmq_lima', 'provider': 'ibm', 'shots': 1000, 'credentials':credentials.CREDENTIALS_US, 'qubits': [1, 2, 4]}
+    # TPNM
+    json = {
+        "cmgenmethod": "tpnm",
+        "qpu": "ibmq_lima",
+        "provider": "ibm",
+        "shots": 1000,
+        "credentials": credentials.CREDENTIALS_US,
+        "qubits": [1, 2, 4],
+    }
     req = CMGenRequest(**json)
     res = generate_cm(req)
     print("test")

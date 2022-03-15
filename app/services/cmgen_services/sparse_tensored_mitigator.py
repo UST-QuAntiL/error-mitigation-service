@@ -8,8 +8,12 @@ from qiskit.ignis.mitigation import TensoredExpvalMeasMitigator
 """
 Extend qiskit method to obtain a sparse, exponentially more memmory efficient tensored mitigation matrix
 """
+
+
 class SparseTensoredExpvalMeasMitigator(TensoredExpvalMeasMitigator):
-    def mitigation_matrix(self, qubits: List[int] = None, sparsity_factor = 1e-3) -> np.ndarray:
+    def mitigation_matrix(
+        self, qubits: List[int] = None, sparsity_factor=1e-3
+    ) -> np.ndarray:
         """Return the SPARSE measurement mitigation matrix for the specified qubits.
 
         The mitigation matrix :math:`A^{-1}` is defined as the inverse of the
@@ -28,17 +32,24 @@ class SparseTensoredExpvalMeasMitigator(TensoredExpvalMeasMitigator):
         mat = self._mitigation_mats[qubits[0]]
         for i in qubits[1:]:
             if i > 3:
-                mask = np.abs(mat.data)<= sparsity_factor
-                mat.data[mask]=0
+                mask = np.abs(mat.data) <= sparsity_factor
+                mat.data[mask] = 0
                 mat.eliminate_zeros()
             # print(mat.shape)
             # print(mat.data.nbytes)
-            if(psutil.virtual_memory().total < mat.data.nbytes * np.count_nonzero(self._mitigation_mats[qubits[i]])):
-                print("Calculating the full calibration matrix would require {} available memory; The system memory size is: {}".format(2**(self._mitigation_mats[qubits[i]]),psutil.virtual_memory().total))
+            if psutil.virtual_memory().total < mat.data.nbytes * np.count_nonzero(
+                self._mitigation_mats[qubits[i]]
+            ):
+                print(
+                    "Calculating the full calibration matrix would require {} available memory; The system memory size is: {}".format(
+                        2 ** (self._mitigation_mats[qubits[i]]),
+                        psutil.virtual_memory().total,
+                    )
+                )
                 raise Exception("Memory exceeded")
             mat = sparse.kron(self._mitigation_mats[qubits[i]], mat, "csr")
 
         mask = np.abs(mat.data) <= sparsity_factor
-        mat.data[mask]=0
+        mat.data[mask] = 0
         mat.eliminate_zeros()
         return mat

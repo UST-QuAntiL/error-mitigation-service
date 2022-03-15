@@ -2,7 +2,17 @@ import marshmallow as ma
 
 
 class MMGenRequest:
-    def __init__(self, cmgenmethod, provider, qpu, qubits, credentials, mitmethod, shots = 1000, maxage=1440):
+    def __init__(
+        self,
+        cmgenmethod,
+        provider,
+        qpu,
+        qubits,
+        credentials,
+        mitmethod,
+        shots=1000,
+        maxage=1440,
+    ):
         self.provider = provider
         self.qpu = qpu
         self.qubits = qubits
@@ -18,25 +28,26 @@ class MMGenRequestSchema(ma.Schema):
     mitmethod = ma.fields.String(required=True)
     provider = ma.fields.String(required=True)
     qpu = ma.fields.String(required=True)
-    qubits = ma.fields.List(ma.fields.Integer(),required=True)
+    qubits = ma.fields.List(ma.fields.Integer(), required=True)
     shots = ma.fields.Integer(required=False)
     credentials = ma.fields.Raw(required=True)
     maxage = ma.fields.Integer(required=False)
 
 
 class MMGetRequest:
-    def __init__(self, qpu, mitmethod = None, cmgenmethod = None, qubits = None, max_age= 1440):
+    def __init__(
+        self, qpu, mitmethod=None, cmgenmethod=None, qubits=None, max_age=1440
+    ):
         self.qpu = qpu
         self.qubits = qubits
         self.mitmethod = mitmethod
         self.cmgenmethod = cmgenmethod
-        self.max_age= max_age
+        self.max_age = max_age
 
 
 class MMGetRequestSchema(ma.Schema):
     mitmethod = ma.fields.String(required=True)
     cmgenmethod = ma.fields.String(required=False)
     qpu = ma.fields.String(required=True)
-    qubits = ma.fields.List(ma.fields.Integer(),required=True)
+    qubits = ma.fields.List(ma.fields.Integer(), required=True)
     max_age = ma.fields.Integer(required=False)
-
