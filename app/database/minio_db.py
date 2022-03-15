@@ -9,6 +9,7 @@ import numpy as np
 from datetime import datetime
 
 
+print(Config.MINIO_ENDPOINT)
 client = Minio(
     Config.MINIO_ENDPOINT,
     access_key=Config.MINIO_USER,
@@ -18,6 +19,16 @@ client = Minio(
 
 TMPDIR = os.path.join(os.getcwd(), "tmp")
 
+
+
+def check_if_bucket_exists(bucketname):
+    # Make QPU bucket if not exist.
+    found = client.bucket_exists(bucketname)
+    if not found:
+        client.make_bucket(bucketname)
+        print("Bucket '" + bucketname + "' created")
+    else:
+        print("Bucket '" + bucketname + "' already exists")
 
 def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
     """
@@ -42,13 +53,7 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
     matrix_data.seek(0)
     size = matrix_data.getbuffer().nbytes
 
-    # Make QPU bucket if not exist.
-    found = client.bucket_exists(bucket)
-    if not found:
-        client.make_bucket(bucket)
-        print("Bucket '" + bucket + "' created")
-    else:
-        print("Bucket '" + bucket + "' already exists")
+    check_if_bucket_exists(bucket)
 
     metadata = {"CreationDate": filedate}
     if matrix_type is MatrixType.cm:
@@ -68,49 +73,6 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
         raise
 
 
-def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
-    """
-
-    :param matrix: Calibration or Mitigation matrix as numpy compatible array
-    :param qpu: Name of the used QPU
-    :param matrix_type: CM or MM (CalibrationMatrix or MitigationMatrix)
-    :param kwargs:
-            qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
-            cmgenmethod: Method used for the generation of the calibration matrix
-            mitmethod: Method used for the generation of the mitigation matrix
-            cmgendate: Date of cm generation
-    :return:
-    """
-    filedate = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = qpu + matrix_type.name + filedate + "." + "npy"
-    source_filepath = os.path.join(TMPDIR, filename)
-    qpu = qpu.replace("_", "-")
-    bucket = qpu + "-" + matrix_type.name
-
-    # Save in TMP Folder
-    np.save(source_filepath, matrix)
-
-    # Make QPU bucket if not exist.
-    found = client.bucket_exists(bucket)
-    if not found:
-        client.make_bucket(bucket)
-        print("Bucket '" + bucket + "' created")
-    else:
-        print("Bucket '" + bucket + "' already exists")
-
-    # TODO delte file or don't save as file and directly upload - or other temp directory
-    # Upload SOURCE_FILEPATH as object name FILENAME to bucket QPU
-    metadata = {"CreationDate": filedate}
-    if matrix_type is MatrixType.cm:
-        metadata["cmgendate"] = filedate
-    for key, value in kwargs.items():
-        metadata[key] = value
-    try:
-        client.fput_object(bucket, filename, source_filepath, metadata=metadata)
-    finally:
-        os.remove(source_filepath)
-        return filename
-
 
 def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     """
@@ -127,6 +89,8 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     # Get all matrix metadata for QPU
     qpu = qpu.replace("_", "-")
     bucket = qpu + "-" + matrix_type.name
+    check_if_bucket_exists(bucket)
+
     objects = client.list_objects(bucket, include_user_meta=True)
 
     matrix_list = []
@@ -195,13 +159,14 @@ def load_mitigator_object_from_db_by_filename(
 ):
     qpu = qpu.replace("_", "-")
     bucket = qpu + "-" + matrix_type.name
+    check_if_bucket_exists(bucket)
+
     objects = client.list_objects(bucket, include_user_meta=True)
 
     for obj in objects:
         if obj.object_name == filename:
             metadata = get_obj_metadata(obj)
             break
-
     try:
         response = client.get_object(bucket, filename)
         matrix_data = io.BytesIO(response.data)
@@ -213,7 +178,83 @@ def load_mitigator_object_from_db_by_filename(
         return matrix, metadata
 
 
-# TODO maxsize, priority, date ...
+
+def get_obj_metadata(obj):
+    metadata = {"name": obj.object_name}
+    for key, value in obj.metadata.items():
+        if key == "X-Amz-Meta-Qubits":
+            metadata["qubits"] = [
+                int(i) for i in obj.metadata.get("X-Amz-Meta-Qubits").split(",")
+            ]
+        else:
+            updatedKey = str(key).replace("X-Amz-Meta-", "").lower()
+            metadata[updatedKey] = value
+    return metadata
+
+
+if __name__ == "__main__":
+    a = [[1.123123123123123123123123123, 2], [3, 4.1]]
+    store_matrix_object_in_db(
+        matrix=a,
+        qpu="ibmq-test",
+        matrix_type=MatrixType.cm,
+        qubits=[0, 1, 2, 3, 4],
+        cmgenmethod="standard",
+        test="1",
+    )
+    res = load_matrix_object_from_db(
+        qpu="ibmq-test", matrix_type=MatrixType.cm, qubits=[1, 2, 3, 4]
+    )
+    print(res)
+
+
+
+########################################################
+#                                                      #
+#      LEGACY FEATURE - RATHER USE OBJECT INSTEAD      #
+#                                                      #
+########################################################
+
+from app.utils.helper_functions import deprecated
+
+@deprecated
+def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
+    """
+
+    :param matrix: Calibration or Mitigation matrix as numpy compatible array
+    :param qpu: Name of the used QPU
+    :param matrix_type: CM or MM (CalibrationMatrix or MitigationMatrix)
+    :param kwargs:
+            qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
+            cmgenmethod: Method used for the generation of the calibration matrix
+            mitmethod: Method used for the generation of the mitigation matrix
+            cmgendate: Date of cm generation
+    :return:
+    """
+    filedate = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = qpu + matrix_type.name + filedate + "." + "npy"
+    source_filepath = os.path.join(TMPDIR, filename)
+    qpu = qpu.replace("_", "-")
+    bucket = qpu + "-" + matrix_type.name
+
+    # Save in TMP Folder
+    np.save(source_filepath, matrix)
+
+    check_if_bucket_exists(bucket)
+
+    # Upload SOURCE_FILEPATH as object name FILENAME to bucket QPU
+    metadata = {"CreationDate": filedate}
+    if matrix_type is MatrixType.cm:
+        metadata["cmgendate"] = filedate
+    for key, value in kwargs.items():
+        metadata[key] = value
+    try:
+        client.fput_object(bucket, filename, source_filepath, metadata=metadata)
+    finally:
+        os.remove(source_filepath)
+        return filename
+
+@deprecated
 def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     """
 
@@ -229,6 +270,8 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     # Get all matrix metadata for QPU
     qpu = qpu.replace("_", "-")
     bucket = qpu + "-" + matrix_type.name
+    check_if_bucket_exists(bucket)
+
     objects = client.list_objects(bucket, include_user_meta=True)
 
     matrix_list = []
@@ -279,36 +322,6 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
         res = client.fget_object(bucket, return_matrix["name"], savepath)
         matrix = np.load(os.path.join(TMPDIR, res.object_name)).tolist()
         os.remove(savepath)
-        # TODO return matrix list, or file or whats best?
         return matrix, return_matrix
     else:
         return
-
-
-def get_obj_metadata(obj):
-    metadata = {"name": obj.object_name}
-    for key, value in obj.metadata.items():
-        if key == "X-Amz-Meta-Qubits":
-            metadata["qubits"] = [
-                int(i) for i in obj.metadata.get("X-Amz-Meta-Qubits").split(",")
-            ]
-        else:
-            updatedKey = str(key).replace("X-Amz-Meta-", "").lower()
-            metadata[updatedKey] = value
-    return metadata
-
-
-if __name__ == "__main__":
-    a = [[1.123123123123123123123123123, 2], [3, 4.1]]
-    store_matrix_object_in_db(
-        matrix=a,
-        qpu="ibmq-test",
-        matrix_type=MatrixType.cm,
-        qubits=[0, 1, 2, 3, 4],
-        cmgenmethod="standard",
-        test="1",
-    )
-    res = load_matrix_object_from_db(
-        qpu="ibmq-test", matrix_type=MatrixType.cm, qubits=[1, 2, 3, 4]
-    )
-    print(res)
