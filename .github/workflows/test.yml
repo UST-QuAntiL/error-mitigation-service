@@ -21,7 +21,7 @@ jobs:
         pip install -r requirements.txt;
     - name: Test with unittest and coverage-report
       run: |
-        coverage run --branch --include 'api/*' -m unittest discover
+        coverage run --branch --include 'app/*' -m unittest discover
         coverage report
         coverage xml
     - name: Upload Coverage to Codecov
