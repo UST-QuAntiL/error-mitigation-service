@@ -20,7 +20,6 @@ client = Minio(
 TMPDIR = os.path.join(os.getcwd(), "tmp")
 
 
-
 def check_if_bucket_exists(bucketname):
     # Make QPU bucket if not exist.
     found = client.bucket_exists(bucketname)
@@ -29,6 +28,7 @@ def check_if_bucket_exists(bucketname):
         print("Bucket '" + bucketname + "' created")
     else:
         print("Bucket '" + bucketname + "' already exists")
+
 
 def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
     """
@@ -71,7 +71,6 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
         return filename
     except:
         raise
-
 
 
 def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
@@ -178,7 +177,6 @@ def load_mitigator_object_from_db_by_filename(
         return matrix, metadata
 
 
-
 def get_obj_metadata(obj):
     metadata = {"name": obj.object_name}
     for key, value in obj.metadata.items():
@@ -208,7 +206,6 @@ if __name__ == "__main__":
     print(res)
 
 
-
 ########################################################
 #                                                      #
 #      LEGACY FEATURE - RATHER USE OBJECT INSTEAD      #
@@ -216,6 +213,7 @@ if __name__ == "__main__":
 ########################################################
 
 from app.utils.helper_functions import deprecated
+
 
 @deprecated
 def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
@@ -253,6 +251,7 @@ def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs)
     finally:
         os.remove(source_filepath)
         return filename
+
 
 @deprecated
 def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):

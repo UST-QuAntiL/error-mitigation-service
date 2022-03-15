@@ -20,7 +20,7 @@ class Config:
         "license": {"name": "Apache v2 License"},
     }
 
-    MINIO_ENDPOINT = os.environ.get('MINIO_URL') or "localhost:9000"
+    MINIO_ENDPOINT = os.environ.get("MINIO_URL") or "localhost:9000"
     MINIO_USER = "minio"
     MINIO_PASSWORD = "minio123"
     MINIO_SECURITY = False
