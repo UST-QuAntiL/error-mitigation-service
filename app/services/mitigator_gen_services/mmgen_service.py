@@ -86,7 +86,7 @@ def generate_mm_from_cm(request: MMGenRequest):
             qubits=request.qubits,
             matrix_type=MatrixType.cm,
             cmgenmethod=request.cmgenmethod,
-            max_age=request.maxage,
+            max_age=request.max_age,
         )
     except:
         raise
@@ -106,7 +106,7 @@ def generate_mm_from_cm(request: MMGenRequest):
             qubits=request.qubits,
             matrix_type=MatrixType.cm,
             cmgenmethod=request.cmgenmethod,
-            max_age=request.maxage,
+            max_age=request.max_age,
         )
 
     mitigator = mitigation_generator(request.mitmethod)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     from credentials import Credentials as credentials
 
     json = {
-        "maxage": 1,
+        "max_age": 1,
         "cmgenmethod": "standard",
         "mitmethod": "inversion",
         "qpu": "ibmq_lima",

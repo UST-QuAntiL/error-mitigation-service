@@ -43,7 +43,7 @@ def retrieve():
     qubits = request.args.get("qubits")
     # TODO check qubit array - not tested yet
     print(qubits)
-    max_age = int(request.args.get("maxage"))
+    max_age = int(request.args.get("max_age"))
     req = CMGetRequest(qpu=qpu, cmgenmethod=cmgenmethod, qubits=qubits, max_age=max_age)
     cm, _ = retrieve_cm(req)
     return cm

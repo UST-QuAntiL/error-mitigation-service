@@ -55,7 +55,8 @@ def mitigate_results(request: REMRequest):
                 matrix_type=MatrixType.mm,
                 mitmethod=request.mitmethod,
                 cmgenmethod=request.cmgenmethod,
-                max_age=request.maxage,
+                max_age=request.max_age,
+                time_of_execution = request.time_of_execution
             )
             if mitigator is not None:
                 if len(request.counts) != len(request.qubits):
@@ -73,7 +74,7 @@ def mitigate_results(request: REMRequest):
                     shots=request.shots,
                     credentials=request.credentials,
                     provider=request.provider,
-                    maxage=request.maxage,
+                    max_age=request.max_age
                 )
                 filename = generate_mm(mmgenrequest)
                 mitigator, metadata = load_mitigator_object_from_db_by_filename(
@@ -93,7 +94,8 @@ def mitigate_results(request: REMRequest):
                 qubits=qubits,
                 matrix_type=MatrixType.cm,
                 cmgenmethod=request.cmgenmethod,
-                max_age=request.maxage,
+                max_age=request.max_age,
+                time_of_execution=request.time_of_execution
             )
             if cm is not None:
                 if len(request.counts) != len(request.qubits):
@@ -143,7 +145,7 @@ if __name__ == "__main__":
         "cmgenmethod": "standard",
         "qpu": "ibmq_lima",
         "qubits": [3, 1, 2],
-        "maxage": 1,
+        "max_age": 1,
     }
     json = {
         "counts": {
@@ -160,7 +162,7 @@ if __name__ == "__main__":
         "cmgenmethod": "standard",
         "qpu": "ibmq_lima",
         "qubits": [3, 1, 2],
-        "maxage": 3,
+        "max_age": 3,
         "credentials": credentials.CREDENTIALS_US,
         "provider": "IBM",
     }
@@ -179,7 +181,7 @@ if __name__ == "__main__":
         "cmgenmethod": "standard",
         "qpu": "ibmq_lima",
         "qubits": [3, 1, 2],
-        "maxage": 2,
+        "max_age": 2,
         "credentials": credentials.CREDENTIALS_US,
         "provider": "IBM",
     }

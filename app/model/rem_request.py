@@ -1,7 +1,7 @@
 import marshmallow as ma
 
 
-# TODO add timeofexecution as optional parameter for running old_data mitigation
+# TODO add time_of_execution as optional parameter for running old_data mitigation
 from marshmallow import fields, ValidationError
 
 
@@ -17,14 +17,14 @@ class REMRequest:
         provider=None,
         shots=None,
         credentials=None,
-        maxage=1440,
+        max_age=1440,
     ):
         self.qpu = qpu
         self.qubits = qubits
         self.cmgenmethod = cmgenmethod
         self.mitmethod = mitmethod
-        self.maxage = maxage
-        self.timeofexecution = time_of_execution
+        self.max_age = max_age
+        self.time_of_execution = time_of_execution
         self.counts = counts
         self.provider = provider
         self.shots = shots
@@ -53,8 +53,8 @@ class REMRequestSchema(ma.Schema):
     # qubits = ma.fields.List(ma.fields.Integer(), required=True) \
     #          or ma.fields.List(ma.fields.List(ma.fields.Integer()), required=True)
     qubits = ValueField()
-    maxage = ma.fields.Integer(required=False)
-    timeofexecution = ma.fields.DateTime(required=False)
+    max_age = ma.fields.Integer(required=False)
+    time_of_execution = ma.fields.DateTime("%Y-%m-%d_%H-%M-%S",required=False)
     provider = ma.fields.String(required=False)
     shots = ma.fields.Integer(required=False)
     credentials = ma.fields.Raw(required=False)

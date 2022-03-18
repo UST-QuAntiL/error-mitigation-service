@@ -29,7 +29,6 @@ def check_if_bucket_exists(bucketname):
     else:
         print("Bucket '" + bucketname + "' already exists")
 
-
 def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
     """
 
@@ -101,6 +100,11 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     qubits = kwargs["qubits"] if "qubits" in kwargs.keys() else None
     cmgenmethod = kwargs["cmgenmethod"] if "cmgenmethod" in kwargs.keys() else None
     mitmethod = kwargs["mitmethod"] if "mitmethod" in kwargs.keys() else None
+    time_of_execution = kwargs["time_of_execution"] if "time_of_execution" in kwargs.keys() else None
+
+    def get_time_diff(elem):
+        return abs((time_of_execution - datetime.strptime(elem["cmgendate"],"%Y-%m-%d_%H-%M-%S")).total_seconds())
+
     if qubits or cmgenmethod or mitmethod:
         fitting_matrices = matrix_list
         if qubits is not None:
@@ -123,15 +127,21 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
             ]
 
         if fitting_matrices:
-            return_matrix = sorted(fitting_matrices, key=lambda x: x["cmgendate"])[-1]
+            if time_of_execution is not None:
+                # fitting_matrices.sort(key=get_time_diff)
+                return_matrix = sorted(fitting_matrices, key=get_time_diff)[0]
+            else:
+                return_matrix = sorted(fitting_matrices, key=lambda x: x["cmgendate"])[-1]
     else:
-        return_matrix = sorted(matrix_list, key=lambda x: x["cmgendate"])[-1]
+        if time_of_execution is not None:
+            # fitting_matrices.sort(key=get_time_diff)
+            return_matrix = sorted(matrix_list, key=get_time_diff)[0]
+        else:
+            return_matrix = sorted(matrix_list, key=lambda x: x["cmgendate"])[-1]
 
     max_age = kwargs["max_age"] if "max_age" in kwargs.keys() else None
-    if return_matrix and (
-        max_age is None
-        or (
-            datetime.now()
+    if return_matrix and \
+            (max_age is None or ((time_of_execution or datetime.now())
             - datetime.strptime(return_matrix["cmgendate"], "%Y-%m-%d_%H-%M-%S")
         ).total_seconds()
         / 60

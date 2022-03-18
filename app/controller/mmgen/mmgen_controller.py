@@ -38,7 +38,7 @@ def retrieve():
     mitmethod = str(request.args.get("mitmethod"))
     cmgenmethod = str(request.args.get("mitmethod"))
     qubits = request.args.get("qubits")
-    max_age = int(request.args.get("maxage"))
+    max_age = int(request.args.get("max_age"))
     req = MMGetRequest(
         qpu=qpu,
         cmgenmethod=cmgenmethod,

@@ -11,7 +11,7 @@ class MMGenRequest:
         credentials,
         mitmethod,
         shots=1000,
-        maxage=1440,
+        max_age=1440,
     ):
         self.provider = provider
         self.qpu = qpu
@@ -20,7 +20,7 @@ class MMGenRequest:
         self.credentials = credentials
         self.cmgenmethod = cmgenmethod
         self.mitmethod = mitmethod
-        self.maxage = maxage
+        self.max_age = max_age
 
 
 class MMGenRequestSchema(ma.Schema):
@@ -31,7 +31,7 @@ class MMGenRequestSchema(ma.Schema):
     qubits = ma.fields.List(ma.fields.Integer(), required=True)
     shots = ma.fields.Integer(required=False)
     credentials = ma.fields.Raw(required=True)
-    maxage = ma.fields.Integer(required=False)
+    max_age = ma.fields.Integer(required=False)
 
 
 class MMGetRequest:
