@@ -37,8 +37,8 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
     :param matrix_type: CM or MM (CalibrationMatrix or MitigationMatrix)
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
-            cmgenmethod: Method used for the generation of the calibration matrix
-            mitmethod: Method used for the generation of the mitigation matrix
+            cm_gen_method: Method used for the generation of the calibration matrix
+            mitigation_method: Method used for the generation of the mitigation matrix
             cmgendate: Date of cm generation
     :return:
     """
@@ -79,8 +79,8 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     :param matrix_type: CM or MM (CalibrationMatrix or MitigationMatrix)
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
-            cmgenmethod: Method used for the generation of the calibration matrix
-            mitmethod: Method used for the generation of the mitigation matrix
+            cm_gen_method: Method used for the generation of the calibration matrix
+            mitigation_method: Method used for the generation of the mitigation matrix
             max_age: Maximum time since the execution of the calibration circuits
     :return:
     """
@@ -98,14 +98,14 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     return_matrix = None
 
     qubits = kwargs["qubits"] if "qubits" in kwargs.keys() else None
-    cmgenmethod = kwargs["cmgenmethod"] if "cmgenmethod" in kwargs.keys() else None
-    mitmethod = kwargs["mitmethod"] if "mitmethod" in kwargs.keys() else None
+    cm_gen_method = kwargs["cm_gen_method"] if "cm_gen_method" in kwargs.keys() else None
+    mitigation_method = kwargs["mitigation_method"] if "mitigation_method" in kwargs.keys() else None
     time_of_execution = kwargs["time_of_execution"] if "time_of_execution" in kwargs.keys() else None
 
     def get_time_diff(elem):
         return abs((time_of_execution - datetime.strptime(elem["cmgendate"],"%Y-%m-%d_%H-%M-%S")).total_seconds())
 
-    if qubits or cmgenmethod or mitmethod:
+    if qubits or cm_gen_method or mitigation_method:
         fitting_matrices = matrix_list
         if qubits is not None:
             fitting_matrices = [
@@ -113,17 +113,17 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
                 for matrix in fitting_matrices
                 if set(qubits) == set(matrix["qubits"])
             ]
-        if cmgenmethod is not None:
+        if cm_gen_method is not None:
             fitting_matrices = [
                 matrix
                 for matrix in fitting_matrices
-                if cmgenmethod == matrix["cmgenmethod"]
+                if cm_gen_method == matrix["cm_gen_method"]
             ]
-        if mitmethod is not None:
+        if mitigation_method is not None:
             fitting_matrices = [
                 matrix
                 for matrix in fitting_matrices
-                if mitmethod == matrix["mitmethod"]
+                if mitigation_method == matrix["mitigation_method"]
             ]
 
         if fitting_matrices:
@@ -207,7 +207,7 @@ if __name__ == "__main__":
         qpu="ibmq-test",
         matrix_type=MatrixType.cm,
         qubits=[0, 1, 2, 3, 4],
-        cmgenmethod="standard",
+        cm_gen_method="standard",
         test="1",
     )
     res = load_matrix_object_from_db(
@@ -234,8 +234,8 @@ def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs)
     :param matrix_type: CM or MM (CalibrationMatrix or MitigationMatrix)
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
-            cmgenmethod: Method used for the generation of the calibration matrix
-            mitmethod: Method used for the generation of the mitigation matrix
+            cm_gen_method: Method used for the generation of the calibration matrix
+            mitigation_method: Method used for the generation of the mitigation matrix
             cmgendate: Date of cm generation
     :return:
     """
@@ -271,8 +271,8 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     :param matrix_type: CM or MM (CalibrationMatrix or MitigationMatrix)
     :param kwargs:
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
-            cmgenmethod: Method used for the generation of the calibration matrix
-            mitmethod: Method used for the generation of the mitigation matrix
+            cm_gen_method: Method used for the generation of the calibration matrix
+            mitigation_method: Method used for the generation of the mitigation matrix
             max_age: Maximum time since the execution of the calibration circuits
     :return:
     """
@@ -289,9 +289,9 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     return_matrix = None
 
     qubits = kwargs["qubits"] if "qubits" in kwargs.keys() else None
-    cmgenmethod = kwargs["cmgenmethod"] if "cmgenmethod" in kwargs.keys() else None
-    mitmethod = kwargs["mitmethod"] if "mitmethod" in kwargs.keys() else None
-    if qubits or cmgenmethod or mitmethod:
+    cm_gen_method = kwargs["cm_gen_method"] if "cm_gen_method" in kwargs.keys() else None
+    mitigation_method = kwargs["mitigation_method"] if "mitigation_method" in kwargs.keys() else None
+    if qubits or cm_gen_method or mitigation_method:
         fitting_matrices = matrix_list
         if qubits is not None:
             fitting_matrices = [
@@ -299,17 +299,17 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
                 for matrix in fitting_matrices
                 if set(qubits) == set(matrix["qubits"])
             ]
-        if cmgenmethod is not None:
+        if cm_gen_method is not None:
             fitting_matrices = [
                 matrix
                 for matrix in fitting_matrices
-                if cmgenmethod == matrix["cmgenmethod"]
+                if cm_gen_method == matrix["cm_gen_method"]
             ]
-        if mitmethod is not None:
+        if mitigation_method is not None:
             fitting_matrices = [
                 matrix
                 for matrix in fitting_matrices
-                if mitmethod == matrix["mitmethod"]
+                if mitigation_method == matrix["mitigation_method"]
             ]
 
         if fitting_matrices:

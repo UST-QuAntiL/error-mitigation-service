@@ -35,14 +35,14 @@ def generate(json: MMGenRequest):
 @blp.response(200)
 def retrieve():
     qpu = str(request.args.get("qpu"))
-    mitmethod = str(request.args.get("mitmethod"))
-    cmgenmethod = str(request.args.get("mitmethod"))
+    mitigation_method = str(request.args.get("mitigation_method"))
+    cm_gen_method = str(request.args.get("mitigation_method"))
     qubits = request.args.get("qubits")
     max_age = int(request.args.get("max_age"))
     req = MMGetRequest(
         qpu=qpu,
-        cmgenmethod=cmgenmethod,
-        mitmethod=mitmethod,
+        cm_gen_method=cm_gen_method,
+        mitigation_method=mitigation_method,
         qubits=qubits,
         max_age=max_age,
     )

@@ -34,7 +34,7 @@ def retrieve_generator(method: str):
 
 
 def generate_cm(request: CMGenRequest):
-    generator = retrieve_generator(request.cmgenmethod)
+    generator = retrieve_generator(request.cm_gen_method)
     circuits, labels = generator.generate_cm_circuits(request.qubits)
     executor = retrieve_executor(request.provider.lower())
     results = executor.execute_circuits(
@@ -46,7 +46,7 @@ def generate_cm(request: CMGenRequest):
         request.qpu,
         MatrixType.cm,
         qubits=request.qubits,
-        cmgenmethod=request.cmgenmethod,
+        cm_gen_method=request.cm_gen_method,
     )
 
 
@@ -55,7 +55,7 @@ def retrieve_cm(req: CMGetRequest):
         qpu=req.qpu,
         matrix_type=MatrixType.cm,
         qubits=req.qubits,
-        method=req.cmgenmethod,
+        method=req.cm_gen_method,
         max_age=req.max_age,
     )
 
@@ -64,10 +64,10 @@ if __name__ == "__main__":
     from credentials import Credentials as credentials
 
     # STandard
-    # json = {'cmgenmethod': 'standard', 'qpu': 'ibmq_lima', 'provider': 'IBM', 'shots': 10, 'credentials': credentials.CREDENTIALS_US, 'qubits': [1, 2, 3, 7]}
+    # json = {'cm_gen_method': 'standard', 'qpu': 'ibmq_lima', 'provider': 'IBM', 'shots': 10, 'credentials': credentials.CREDENTIALS_US, 'qubits': [1, 2, 3, 7]}
     # TPNM
     json = {
-        "cmgenmethod": "tpnm",
+        "cm_gen_method": "tpnm",
         "qpu": "ibmq_lima",
         "provider": "ibm",
         "shots": 1000,

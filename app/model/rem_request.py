@@ -9,10 +9,10 @@ class REMRequest:
     def __init__(
         self,
         counts,
-        cmgenmethod,
+        cm_gen_method,
         qpu,
         qubits,
-        mitmethod,
+        mitigation_method,
         time_of_execution=None,
         provider=None,
         shots=None,
@@ -21,8 +21,8 @@ class REMRequest:
     ):
         self.qpu = qpu
         self.qubits = qubits
-        self.cmgenmethod = cmgenmethod
-        self.mitmethod = mitmethod
+        self.cm_gen_method = cm_gen_method
+        self.mitigation_method = mitigation_method
         self.max_age = max_age
         self.time_of_execution = time_of_execution
         self.counts = counts
@@ -47,8 +47,8 @@ class REMRequestSchema(ma.Schema):
 
 
     counts = ma.fields.Raw(required=True)
-    cmgenmethod = ma.fields.String(required=False)
-    mitmethod = ma.fields.String(required=False)
+    cm_gen_method = ma.fields.String(required=False)
+    mitigation_method = ma.fields.String(required=False)
     qpu = ma.fields.String(required=True)
     # qubits = ma.fields.List(ma.fields.Integer(), required=True) \
     #          or ma.fields.List(ma.fields.List(ma.fields.Integer()), required=True)

@@ -15,7 +15,7 @@ blp = Blueprint(
     REMRequestSchema,
     example=dict(
         qpu="ibmq_lima",
-        mitmethod="inversion",
+        mitigation_method="inversion",
         counts={
             "000": 117,
             "001": 121,

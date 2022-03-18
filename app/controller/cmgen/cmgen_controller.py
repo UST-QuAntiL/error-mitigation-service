@@ -39,11 +39,11 @@ def generate(json: CMGenRequest):
 @blp.response(200)
 def retrieve():
     qpu = str(request.args.get("qpu"))
-    cmgenmethod = str(request.args.get("cmgenmethod"))
+    cm_gen_method = str(request.args.get("cm_gen_method"))
     qubits = request.args.get("qubits")
     # TODO check qubit array - not tested yet
     print(qubits)
     max_age = int(request.args.get("max_age"))
-    req = CMGetRequest(qpu=qpu, cmgenmethod=cmgenmethod, qubits=qubits, max_age=max_age)
+    req = CMGetRequest(qpu=qpu, cm_gen_method=cm_gen_method, qubits=qubits, max_age=max_age)
     cm, _ = retrieve_cm(req)
     return cm

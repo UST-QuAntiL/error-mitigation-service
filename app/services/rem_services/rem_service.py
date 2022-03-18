@@ -39,7 +39,7 @@ def perform_mitigation(counts, qubits, metadata, application_method, mitigator):
 
 
 def mitigate_results(request: REMRequest):
-    application_method = application_generator(request.mitmethod)
+    application_method = application_generator(request.mitigation_method)
 
     if isinstance(request.qubits[0], int):
         request.qubits = [request.qubits]
@@ -53,8 +53,8 @@ def mitigate_results(request: REMRequest):
                 qpu=request.qpu,
                 qubits=qubits,
                 matrix_type=MatrixType.mm,
-                mitmethod=request.mitmethod,
-                cmgenmethod=request.cmgenmethod,
+                mitigation_method=request.mitigation_method,
+                cm_gen_method=request.cm_gen_method,
                 max_age=request.max_age,
                 time_of_execution = request.time_of_execution
             )
@@ -67,8 +67,8 @@ def mitigate_results(request: REMRequest):
                     solution_counts.append(perform_mitigation(counts,qubits,metadata,application_method,mitigator))
             elif request.credentials and request.provider:
                 mmgenrequest = MMGenRequest(
-                    mitmethod=request.mitmethod,
-                    cmgenmethod=request.cmgenmethod,
+                    mitigation_method=request.mitigation_method,
+                    cm_gen_method=request.cm_gen_method,
                     qubits=qubits,
                     qpu=request.qpu,
                     shots=request.shots,
@@ -93,7 +93,7 @@ def mitigate_results(request: REMRequest):
                 qpu=request.qpu,
                 qubits=qubits,
                 matrix_type=MatrixType.cm,
-                cmgenmethod=request.cmgenmethod,
+                cm_gen_method=request.cm_gen_method,
                 max_age=request.max_age,
                 time_of_execution=request.time_of_execution
             )
@@ -106,7 +106,7 @@ def mitigate_results(request: REMRequest):
                     solution_counts.append(perform_mitigation(counts, qubits, metadata, application_method, cm))
             elif request.credentials and request.provider:
                 cmgenrequest = CMGenRequest(
-                    cmgenmethod=request.cmgenmethod,
+                    cm_gen_method=request.cm_gen_method,
                     qubits=qubits,
                     qpu=request.qpu,
                     shots=request.shots,
@@ -141,8 +141,8 @@ if __name__ == "__main__":
             "001": 125,
             "010": 125,
         },
-        "mitmethod": "inversion",
-        "cmgenmethod": "standard",
+        "mitigation_method": "inversion",
+        "cm_gen_method": "standard",
         "qpu": "ibmq_lima",
         "qubits": [3, 1, 2],
         "max_age": 1,
@@ -158,8 +158,8 @@ if __name__ == "__main__":
             "001": 125,
             "010": 125,
         },
-        "mitmethod": "inversion",
-        "cmgenmethod": "standard",
+        "mitigation_method": "inversion",
+        "cm_gen_method": "standard",
         "qpu": "ibmq_lima",
         "qubits": [3, 1, 2],
         "max_age": 3,
@@ -177,8 +177,8 @@ if __name__ == "__main__":
             "001": 125,
             "010": 125,
         },
-        "mitmethod": "ignis",
-        "cmgenmethod": "standard",
+        "mitigation_method": "ignis",
+        "cm_gen_method": "standard",
         "qpu": "ibmq_lima",
         "qubits": [3, 1, 2],
         "max_age": 2,

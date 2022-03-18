@@ -23,10 +23,10 @@ def mitigation_generator(method):
 
 
 def generate_mm(request: MMGenRequest):
-    mitmethod = request.mitmethod
-    if mitmethod == "tpnm":
+    mitigation_method = request.mitigation_method
+    if mitigation_method == "tpnm":
         return generate_mm_from_skratch(request)
-    elif mitmethod == "mthree":
+    elif mitigation_method == "mthree":
         return generate_mthree_mitigator(request)
     else:
         return generate_mm_from_cm(request)
@@ -49,8 +49,8 @@ def generate_mthree_mitigator(request: MMGenRequest):
             qpu=request.qpu,
             matrix_type=MatrixType.mm,
             qubits=request.qubits,
-            cmgenmethod=request.mitmethod,
-            mitmethod=request.mitmethod,
+            cm_gen_method=request.mitigation_method,
+            mitigation_method=request.mitigation_method,
             cmgendate=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         )
     finally:
@@ -60,7 +60,7 @@ def generate_mthree_mitigator(request: MMGenRequest):
 
 
 def generate_mm_from_skratch(request: MMGenRequest):
-    generator = retrieve_generator(request.mitmethod)
+    generator = retrieve_generator(request.mitigation_method)
     circuits, labels = generator.generate_cm_circuits(request.qubits)
     executor = retrieve_executor(request.provider)
     results = executor.execute_circuits(
@@ -72,8 +72,8 @@ def generate_mm_from_skratch(request: MMGenRequest):
         request.qpu,
         MatrixType.mm,
         qubits=request.qubits,
-        cmgenmethod=request.mitmethod,
-        mitmethod=request.mitmethod,
+        cm_gen_method=request.mitigation_method,
+        mitigation_method=request.mitigation_method,
         cmgendate=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
     )
 
@@ -85,7 +85,7 @@ def generate_mm_from_cm(request: MMGenRequest):
             qpu=request.qpu,
             qubits=request.qubits,
             matrix_type=MatrixType.cm,
-            cmgenmethod=request.cmgenmethod,
+            cm_gen_method=request.cm_gen_method,
             max_age=request.max_age,
         )
     except:
@@ -93,7 +93,7 @@ def generate_mm_from_cm(request: MMGenRequest):
 
     if cm is None:
         cmgenrequest = CMGenRequest(
-            cmgenmethod=request.cmgenmethod,
+            cm_gen_method=request.cm_gen_method,
             qubits=request.qubits,
             qpu=request.qpu,
             shots=request.shots,
@@ -105,19 +105,19 @@ def generate_mm_from_cm(request: MMGenRequest):
             qpu=request.qpu,
             qubits=request.qubits,
             matrix_type=MatrixType.cm,
-            cmgenmethod=request.cmgenmethod,
+            cm_gen_method=request.cm_gen_method,
             max_age=request.max_age,
         )
 
-    mitigator = mitigation_generator(request.mitmethod)
+    mitigator = mitigation_generator(request.mitigation_method)
     mm = mitigator.generate_mitigator(cm)
     return store_matrix_object_in_db(
         matrix=mm,
         qpu=request.qpu,
         matrix_type=MatrixType.mm,
         qubits=request.qubits,
-        cmgenmethod=metadata["cmgenmethod"],
-        mitmethod=request.mitmethod,
+        cm_gen_method=metadata["cm_gen_method"],
+        mitigation_method=request.mitigation_method,
         cmfilename=metadata["name"],
         cmgendate=metadata["cmgendate"],
     )
@@ -128,7 +128,7 @@ def retrieve_mm(req: MMGetRequest):
         qpu=req.qpu,
         matrix_type=MatrixType.mm,
         qubits=req.qubits,
-        method=req.mitmethod,
+        method=req.mitigation_method,
         max_age=req.max_age,
     )
 
@@ -138,15 +138,15 @@ if __name__ == "__main__":
 
     json = {
         "max_age": 1,
-        "cmgenmethod": "standard",
-        "mitmethod": "inversion",
+        "cm_gen_method": "standard",
+        "mitigation_method": "inversion",
         "qpu": "ibmq_lima",
         "qubits": [1, 2, 3],
         "provider": "ibm",
         "shots": 10,
         "credentials": credentials.CREDENTIALS_US,
     }
-    # json = {'cmgenmethod': 'tpnm', 'mitmethod':'tpnm', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'ibm', 'shots': 10, 'credentials': credentials.CREDENTIALS_US}
-    # json = {'cmgenmethod': 'mthree', 'mitmethod':'mthree', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'ibm', 'shots': 10, 'credentials': credentials.CREDENTIALS_US}
+    # json = {'cm_gen_method': 'tpnm', 'mitigation_method':'tpnm', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'ibm', 'shots': 10, 'credentials': credentials.CREDENTIALS_US}
+    # json = {'cm_gen_method': 'mthree', 'mitigation_method':'mthree', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'ibm', 'shots': 10, 'credentials': credentials.CREDENTIALS_US}
     req = MMGenRequest(**json)
     print(generate_mm(req))
