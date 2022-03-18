@@ -51,7 +51,7 @@ def generate_mthree_mitigator(request: MMGenRequest):
             qubits=request.qubits,
             cm_gen_method=request.mitigation_method,
             mitigation_method=request.mitigation_method,
-            cmgendate=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+            cm_gen_date=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         )
     finally:
        if request.provider == "ibm":
@@ -74,7 +74,7 @@ def generate_mm_from_skratch(request: MMGenRequest):
         qubits=request.qubits,
         cm_gen_method=request.mitigation_method,
         mitigation_method=request.mitigation_method,
-        cmgendate=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        cm_gen_date=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
     )
 
 
@@ -119,7 +119,7 @@ def generate_mm_from_cm(request: MMGenRequest):
         cm_gen_method=metadata["cm_gen_method"],
         mitigation_method=request.mitigation_method,
         cmfilename=metadata["name"],
-        cmgendate=metadata["cmgendate"],
+        cm_gen_date=metadata["cm_gen_date"],
     )
 
 

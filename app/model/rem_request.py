@@ -1,7 +1,4 @@
 import marshmallow as ma
-
-
-# TODO add time_of_execution as optional parameter for running old_data mitigation
 from marshmallow import fields, ValidationError
 
 
@@ -31,7 +28,7 @@ class REMRequest:
         self.credentials = credentials
 
 
-class ValueField(fields.Field):
+class QubitsArrayField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, list):
             if all(isinstance(x, int) for x in value):
@@ -50,9 +47,7 @@ class REMRequestSchema(ma.Schema):
     cm_gen_method = ma.fields.String(required=False)
     mitigation_method = ma.fields.String(required=False)
     qpu = ma.fields.String(required=True)
-    # qubits = ma.fields.List(ma.fields.Integer(), required=True) \
-    #          or ma.fields.List(ma.fields.List(ma.fields.Integer()), required=True)
-    qubits = ValueField()
+    qubits = QubitsArrayField()
     max_age = ma.fields.Integer(required=False)
     time_of_execution = ma.fields.DateTime("%Y-%m-%d_%H-%M-%S",required=False)
     provider = ma.fields.String(required=False)

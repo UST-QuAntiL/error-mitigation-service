@@ -39,7 +39,7 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
             cm_gen_method: Method used for the generation of the calibration matrix
             mitigation_method: Method used for the generation of the mitigation matrix
-            cmgendate: Date of cm generation
+            cm_gen_date: Date of cm generation
     :return:
     """
     filedate = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -56,7 +56,7 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
 
     metadata = {"CreationDate": filedate}
     if matrix_type is MatrixType.cm:
-        metadata["cmgendate"] = filedate
+        metadata["cm_gen_date"] = filedate
     for key, value in kwargs.items():
         metadata[key] = value
     try:
@@ -103,7 +103,7 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     time_of_execution = kwargs["time_of_execution"] if "time_of_execution" in kwargs.keys() else None
 
     def get_time_diff(elem):
-        return abs((time_of_execution - datetime.strptime(elem["cmgendate"],"%Y-%m-%d_%H-%M-%S")).total_seconds())
+        return abs((time_of_execution - datetime.strptime(elem["cm_gen_date"],"%Y-%m-%d_%H-%M-%S")).total_seconds())
 
     if qubits or cm_gen_method or mitigation_method:
         fitting_matrices = matrix_list
@@ -131,18 +131,18 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
                 # fitting_matrices.sort(key=get_time_diff)
                 return_matrix = sorted(fitting_matrices, key=get_time_diff)[0]
             else:
-                return_matrix = sorted(fitting_matrices, key=lambda x: x["cmgendate"])[-1]
+                return_matrix = sorted(fitting_matrices, key=lambda x: x["cm_gen_date"])[-1]
     else:
         if time_of_execution is not None:
             # fitting_matrices.sort(key=get_time_diff)
             return_matrix = sorted(matrix_list, key=get_time_diff)[0]
         else:
-            return_matrix = sorted(matrix_list, key=lambda x: x["cmgendate"])[-1]
+            return_matrix = sorted(matrix_list, key=lambda x: x["cm_gen_date"])[-1]
 
     max_age = kwargs["max_age"] if "max_age" in kwargs.keys() else None
     if return_matrix and \
             (max_age is None or ((time_of_execution or datetime.now())
-            - datetime.strptime(return_matrix["cmgendate"], "%Y-%m-%d_%H-%M-%S")
+            - datetime.strptime(return_matrix["cm_gen_date"], "%Y-%m-%d_%H-%M-%S")
         ).total_seconds()
         / 60
         < kwargs["max_age"]
@@ -236,7 +236,7 @@ def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs)
             qubits: Array of used qubits, e.g., [0,1,2,3,7,8]
             cm_gen_method: Method used for the generation of the calibration matrix
             mitigation_method: Method used for the generation of the mitigation matrix
-            cmgendate: Date of cm generation
+            cm_gen_date: Date of cm generation
     :return:
     """
     filedate = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -253,7 +253,7 @@ def store_matrix_file_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs)
     # Upload SOURCE_FILEPATH as object name FILENAME to bucket QPU
     metadata = {"CreationDate": filedate}
     if matrix_type is MatrixType.cm:
-        metadata["cmgendate"] = filedate
+        metadata["cm_gen_date"] = filedate
     for key, value in kwargs.items():
         metadata[key] = value
     try:
@@ -313,16 +313,16 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
             ]
 
         if fitting_matrices:
-            return_matrix = sorted(fitting_matrices, key=lambda x: x["cmgendate"])[-1]
+            return_matrix = sorted(fitting_matrices, key=lambda x: x["cm_gen_date"])[-1]
     else:
-        return_matrix = sorted(matrix_list, key=lambda x: x["cmgendate"])[-1]
+        return_matrix = sorted(matrix_list, key=lambda x: x["cm_gen_date"])[-1]
 
     max_age = kwargs["max_age"] if "max_age" in kwargs.keys() else None
     if return_matrix and (
         max_age is None
         or (
             datetime.now()
-            - datetime.strptime(return_matrix["cmgendate"], "%Y-%m-%d,_%H-%M-%S")
+            - datetime.strptime(return_matrix["cm_gen_date"], "%Y-%m-%d,_%H-%M-%S")
         ).total_seconds()
         / 60
         < kwargs["max_age"]
