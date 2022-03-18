@@ -21,23 +21,19 @@ x-minio-common: &minio-common
 # using nginx reverse proxy, load balancing, you can access
 # it through port 9000.
 services:
-
-
   minio1:
     <<: *minio-common
     hostname: minio1
     volumes:
       - data1-1:/data1
       - data1-2:/data2
-#
-#
+
   minio2:
     <<: *minio-common
     hostname: minio2
     volumes:
       - data2-1:/data1
       - data2-2:/data2
-
 
   nginx:
     image: nginx:1.19.2-alpine

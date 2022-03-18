@@ -15,24 +15,26 @@ class CircuitExecutor(ABC):
 
 class IBMCircuitExecutor(CircuitExecutor):
     def execute_circuits(self, circuits, qpu, credentials, shots):
-        provider = IBMQ.enable_account(**credentials)
+        try:
+            provider = IBMQ.enable_account(**credentials)
 
-        backend = provider.get_backend(qpu)
-        backend = FakeMontreal()
-        # TODO split when too many circuits
-        # if type(backend) == IBMQBackend:
-        #     jobmanager = IBMQJobManager()  # works only with IBMQBackend typed backend, splits experiments into jobs
-        #     bulk_circuits = transpile(circuits, backend=backend)
-        #     res = jobmanager.run(bulk_circuits, backend=backend, shots=shots).results()
-        #     counts = [res.get_counts(i) for i in range(len(bulk_circuits))]
-        results = execute(
-            circuits, backend=backend, shots=shots, optimization_level=0
-        ).result()
-        # TODO check if reverse is necessary
-        reversed_result = {}
-        # for key, value in results.items():
-        #     reversed_result[key.reverse()] = value
-        IBMQ.disable_account()
+            backend = provider.get_backend(qpu)
+            backend = FakeMontreal()
+            # TODO split when too many circuits
+            # if type(backend) == IBMQBackend:
+            #     jobmanager = IBMQJobManager()  # works only with IBMQBackend typed backend, splits experiments into jobs
+            #     bulk_circuits = transpile(circuits, backend=backend)
+            #     res = jobmanager.run(bulk_circuits, backend=backend, shots=shots).results()
+            #     counts = [res.get_counts(i) for i in range(len(bulk_circuits))]
+            results = execute(
+                circuits, backend=backend, shots=shots, optimization_level=0
+            ).result()
+            # TODO check if reverse is necessary
+            reversed_result = {}
+            # for key, value in results.items():
+            #     reversed_result[key.reverse()] = value
+        finally:
+            IBMQ.disable_account()
         return results
 
 

@@ -33,27 +33,29 @@ def generate_mm(request: MMGenRequest):
 
 
 def generate_mthree_mitigator(request: MMGenRequest):
-    if request.provider == "ibm":
-        provider = IBMQ.enable_account(**credentials)
-        backend = provider.get_backend(request.qpu)
-        # backend = FakeMontreal()
-    elif request.provider == "ionq":
-        backend = IonQProvider(request.credentials).get_backend(request.qpu)
-    mit = mthree.M3Mitigation(backend)
-    mit.cals_from_system(request.qubits, shots=request.shots)
-    calstmp = mit.cals_to_matrices()
+    try:
+        if request.provider == "ibm":
+            provider = IBMQ.enable_account(**credentials)
+            backend = provider.get_backend(request.qpu)
+            # backend = FakeMontreal()
+        elif request.provider == "ionq":
+            backend = IonQProvider(request.credentials).get_backend(request.qpu)
+        mit = mthree.M3Mitigation(backend)
+        mit.cals_from_system(request.qubits, shots=request.shots)
+        calstmp = mit.cals_to_matrices()
 
-    filename = store_matrix_object_in_db(
-        matrix=calstmp,
-        qpu=request.qpu,
-        matrix_type=MatrixType.mm,
-        qubits=request.qubits,
-        cmgenmethod=request.mitmethod,
-        mitmethod=request.mitmethod,
-        cmgendate=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-    )
-    if request.provider == "ibm":
-        IBMQ.disable_account()
+        filename = store_matrix_object_in_db(
+            matrix=calstmp,
+            qpu=request.qpu,
+            matrix_type=MatrixType.mm,
+            qubits=request.qubits,
+            cmgenmethod=request.mitmethod,
+            mitmethod=request.mitmethod,
+            cmgendate=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        )
+    finally:
+       if request.provider == "ibm":
+          IBMQ.disable_account()
     return filename
 
 
