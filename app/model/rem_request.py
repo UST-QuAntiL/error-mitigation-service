@@ -33,15 +33,21 @@ class QubitsArrayField(fields.Field):
         if isinstance(value, list):
             if all(isinstance(x, int) for x in value):
                 return value
-            elif all(isinstance(x, list) for x in value) and all(all(isinstance(y, int) for y in x) for x in value):
+            elif all(isinstance(x, list) for x in value) and all(
+                all(isinstance(y, int) for y in x) for x in value
+            ):
                 return value
             else:
-                raise ValidationError('Field should be list of integers or list of list of integers')
+                raise ValidationError(
+                    "Field should be list of integers or list of list of integers"
+                )
         else:
-            raise ValidationError('Field should be list of integers or list of list of integers')
+            raise ValidationError(
+                "Field should be list of integers or list of list of integers"
+            )
+
 
 class REMRequestSchema(ma.Schema):
-
 
     counts = ma.fields.Raw(required=True)
     cm_gen_method = ma.fields.String(required=False)
@@ -49,7 +55,7 @@ class REMRequestSchema(ma.Schema):
     qpu = ma.fields.String(required=True)
     qubits = QubitsArrayField()
     max_age = ma.fields.Integer(required=False)
-    time_of_execution = ma.fields.DateTime("%Y-%m-%d_%H-%M-%S",required=False)
+    time_of_execution = ma.fields.DateTime("%Y-%m-%d_%H-%M-%S", required=False)
     provider = ma.fields.String(required=False)
     shots = ma.fields.Integer(required=False)
     credentials = ma.fields.Raw(required=False)

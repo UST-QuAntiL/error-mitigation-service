@@ -29,6 +29,7 @@ def check_if_bucket_exists(bucketname):
     else:
         print("Bucket '" + bucketname + "' already exists")
 
+
 def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
     """
 
@@ -98,12 +99,23 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     return_matrix = None
 
     qubits = kwargs["qubits"] if "qubits" in kwargs.keys() else None
-    cm_gen_method = kwargs["cm_gen_method"] if "cm_gen_method" in kwargs.keys() else None
-    mitigation_method = kwargs["mitigation_method"] if "mitigation_method" in kwargs.keys() else None
-    time_of_execution = kwargs["time_of_execution"] if "time_of_execution" in kwargs.keys() else None
+    cm_gen_method = (
+        kwargs["cm_gen_method"] if "cm_gen_method" in kwargs.keys() else None
+    )
+    mitigation_method = (
+        kwargs["mitigation_method"] if "mitigation_method" in kwargs.keys() else None
+    )
+    time_of_execution = (
+        kwargs["time_of_execution"] if "time_of_execution" in kwargs.keys() else None
+    )
 
     def get_time_diff(elem):
-        return abs((time_of_execution - datetime.strptime(elem["cm_gen_date"],"%Y-%m-%d_%H-%M-%S")).total_seconds())
+        return abs(
+            (
+                time_of_execution
+                - datetime.strptime(elem["cm_gen_date"], "%Y-%m-%d_%H-%M-%S")
+            ).total_seconds()
+        )
 
     if qubits or cm_gen_method or mitigation_method:
         fitting_matrices = matrix_list
@@ -131,7 +143,9 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
                 # fitting_matrices.sort(key=get_time_diff)
                 return_matrix = sorted(fitting_matrices, key=get_time_diff)[0]
             else:
-                return_matrix = sorted(fitting_matrices, key=lambda x: x["cm_gen_date"])[-1]
+                return_matrix = sorted(
+                    fitting_matrices, key=lambda x: x["cm_gen_date"]
+                )[-1]
     else:
         if time_of_execution is not None:
             # fitting_matrices.sort(key=get_time_diff)
@@ -140,8 +154,10 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
             return_matrix = sorted(matrix_list, key=lambda x: x["cm_gen_date"])[-1]
 
     max_age = kwargs["max_age"] if "max_age" in kwargs.keys() else None
-    if return_matrix and \
-            (max_age is None or ((time_of_execution or datetime.now())
+    if return_matrix and (
+        max_age is None
+        or (
+            (time_of_execution or datetime.now())
             - datetime.strptime(return_matrix["cm_gen_date"], "%Y-%m-%d_%H-%M-%S")
         ).total_seconds()
         / 60
@@ -289,8 +305,12 @@ def load_matrix_file_from_db(qpu, matrix_type: MatrixType, **kwargs):
     return_matrix = None
 
     qubits = kwargs["qubits"] if "qubits" in kwargs.keys() else None
-    cm_gen_method = kwargs["cm_gen_method"] if "cm_gen_method" in kwargs.keys() else None
-    mitigation_method = kwargs["mitigation_method"] if "mitigation_method" in kwargs.keys() else None
+    cm_gen_method = (
+        kwargs["cm_gen_method"] if "cm_gen_method" in kwargs.keys() else None
+    )
+    mitigation_method = (
+        kwargs["mitigation_method"] if "mitigation_method" in kwargs.keys() else None
+    )
     if qubits or cm_gen_method or mitigation_method:
         fitting_matrices = matrix_list
         if qubits is not None:

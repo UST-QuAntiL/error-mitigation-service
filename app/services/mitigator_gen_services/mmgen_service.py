@@ -54,8 +54,8 @@ def generate_mthree_mitigator(request: MMGenRequest):
             cm_gen_date=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         )
     finally:
-       if request.provider == "ibm":
-          IBMQ.disable_account()
+        if request.provider == "ibm":
+            IBMQ.disable_account()
     return filename
 
 

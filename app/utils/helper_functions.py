@@ -39,12 +39,15 @@ def sort_dict_by_qubitorder(
         sorted_dict[newkey] = value
     return sorted_dict
 
-def restore_dict_by_qubitorder(adjusted_counts_dict: dict, counts_qubits: list, mitigator_qubits: list):
+
+def restore_dict_by_qubitorder(
+    adjusted_counts_dict: dict, counts_qubits: list, mitigator_qubits: list
+):
     """
     :param adjusted_counts_dict: dictionary containing measurement counts
     :return:
     """
-    mapping =[]
+    mapping = []
     for i in counts_qubits:
         mapping.append(mitigator_qubits.index(i))
     sorted_dict = {}
@@ -54,7 +57,6 @@ def restore_dict_by_qubitorder(adjusted_counts_dict: dict, counts_qubits: list, 
             newkey += key[i]
         sorted_dict[newkey] = value
     return sorted_dict
-
 
 
 # qubits [2,4,1]
@@ -164,8 +166,6 @@ def deprecated(reason):
         raise TypeError(repr(type(reason)))
 
 
-
-
 if __name__ == "__main__":
     dict = {
         "111": 129,
@@ -184,7 +184,7 @@ if __name__ == "__main__":
 
     counts_qubits = [4, 2, 7]
     mitiagor_qubits = [7, 4, 2]
-    print("default",dict)
+    print("default", dict)
     sorted = sort_dict_by_qubitorder(dict, counts_qubits, mitiagor_qubits)
     print("sorted", sorted)
     print("restore", restore_dict_by_qubitorder(sorted, counts_qubits, mitiagor_qubits))
