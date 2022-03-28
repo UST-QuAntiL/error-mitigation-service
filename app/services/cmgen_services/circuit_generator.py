@@ -25,7 +25,6 @@ class StandardCMGenerator(CircuitGenerator):
         circuits, _ = tensored_meas_cal([qubits], circlabel="mcal")
         return circuits
 
-    # TODO check if labels can generally be removed
     def compute_cm(self, counts):
         num_qubits = len(list(counts[0].keys())[0])
         matrix = np.zeros((2 ** num_qubits, 2 ** num_qubits))
