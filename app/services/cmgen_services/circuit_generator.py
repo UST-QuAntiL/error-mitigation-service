@@ -1,8 +1,13 @@
 from abc import ABC, abstractmethod
+
+import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.ignis.mitigation import CompleteMeasFitter, tensored_meas_cal
 import qiskit.ignis.mitigation as mit
+from sympy.physics.units import bits
+
 from app.services.cmgen_services.sparse_fitter import SparseExpvalMeasMitigatorFitter
+from app.utils.helper_functions import ResultsMock
 
 
 class CircuitGenerator(ABC):
@@ -10,7 +15,7 @@ class CircuitGenerator(ABC):
     def generate_cm_circuits(self, qubits):
         pass
 
-    def compute_cm(self, results, labels):
+    def compute_cm(self, counts):
         pass
 
 
@@ -18,11 +23,19 @@ class StandardCMGenerator(CircuitGenerator):
     def generate_cm_circuits(self, qubits):
         state_labels = [bin(j)[2:].zfill(len(qubits)) for j in range(2 ** len(qubits))]
         circuits, _ = tensored_meas_cal([qubits], circlabel="mcal")
-        return circuits, state_labels
+        return circuits
 
-    def compute_cm(self, results, labels):
-        meas_fitter = CompleteMeasFitter(results, labels, circlabel="mcal")
-        return meas_fitter.cal_matrix
+    # TODO check if labels can generally be removed
+    def compute_cm(self, counts):
+        num_qubits = len(list(counts[0].keys())[0])
+        matrix = np.zeros((2 ** num_qubits, 2 ** num_qubits))
+        shots = np.sum(list(counts[0].values()))
+        state_labels = [bin(j)[2:].zfill(num_qubits) for j in range(2 ** num_qubits)]
+        for i, column in enumerate(counts):
+            for j, bitstring in enumerate(state_labels):
+                if bitstring in column:
+                    matrix[j,i] = column[bitstring]/shots
+        return matrix
 
 
 class TPNMCMGenerator(CircuitGenerator):
@@ -38,20 +51,22 @@ class TPNMCMGenerator(CircuitGenerator):
             qc1.measure(qr[i], cr[e])
 
         circuits = [qc0, qc1]
-        state_labels = [
-            {"experiment": "meas_mit", "cal": "0" * len(qubits), "method": "tensored"},
-            {"experiment": "meas_mit", "cal": "1" * len(qubits), "method": "tensored"},
-        ]
-        return circuits, state_labels
+        return circuits
 
-    def compute_cm(self, results, labels):
-        mitigator_tensored = mit.ExpvalMeasMitigatorFitter(results, labels).fit()
+    def compute_cm(self, counts):
+        qubits = len(list(counts[0].keys())[0])
+        state_labels = [
+            {"experiment": "meas_mit", "cal": "0" * qubits, "method": "tensored"},
+            {"experiment": "meas_mit", "cal": "1" * qubits, "method": "tensored"},
+        ]
+        counts = ResultsMock(counts)
+        mitigator_tensored = mit.ExpvalMeasMitigatorFitter(counts, state_labels).fit()
         return mitigator_tensored.assignment_matrix()
 
-    def compute_sparse_mm(self, results, labels, sparsity=1e-5):
-        mitigator_tensored = SparseExpvalMeasMitigatorFitter(results, labels).fit()
+    def compute_sparse_mm(self, counts, labels, sparsity=1e-5):
+        counts = ResultsMock(counts)
+        mitigator_tensored = SparseExpvalMeasMitigatorFitter(counts, labels).fit()
         return mitigator_tensored.mitigation_matrix(sparsity_factor=sparsity)
-        # return mitigator_tensored.mitigation_matrix(sparsity_factor=1e-4)
 
 
 class CTMPCMGenerator(CircuitGenerator):
@@ -62,8 +77,13 @@ class CTMPCMGenerator(CircuitGenerator):
         )
         return circuits, state_labels
 
-    def compute_cm(self, results, labels):
-        mitigator_ctmp = mit.ExpvalMeasMitigatorFitter(results, labels).fit()
+    def compute_cm(self, counts):
+        qubits = len(list(counts[0].keys())[0])
+        state_labels = [
+            {"experiment": "meas_mit", "cal": "0" * qubits, "method": "tensored"},
+            {"experiment": "meas_mit", "cal": "1" * qubits, "method": "tensored"},
+        ]
+        mitigator_ctmp = mit.ExpvalMeasMitigatorFitter(counts, state_labels).fit()
         return mitigator_ctmp.assignment_matrix()
 
 

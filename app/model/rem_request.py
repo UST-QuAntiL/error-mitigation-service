@@ -6,10 +6,10 @@ class REMRequest:
     def __init__(
         self,
         counts,
-        cm_gen_method,
         qpu,
         qubits,
         mitigation_method,
+        cm_gen_method =None,
         time_of_execution=None,
         provider=None,
         shots=None,

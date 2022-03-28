@@ -17,9 +17,7 @@ class IBMCircuitExecutor(CircuitExecutor):
     def execute_circuits(self, circuits, qpu, credentials, shots):
         try:
             provider = IBMQ.enable_account(**credentials)
-
             backend = provider.get_backend(qpu)
-            backend = FakeMontreal()
             # TODO split when too many circuits
             # if type(backend) == IBMQBackend:
             #     jobmanager = IBMQJobManager()  # works only with IBMQBackend typed backend, splits experiments into jobs
@@ -28,7 +26,7 @@ class IBMCircuitExecutor(CircuitExecutor):
             #     counts = [res.get_counts(i) for i in range(len(bulk_circuits))]
             results = execute(
                 circuits, backend=backend, shots=shots, optimization_level=0
-            ).result()
+            ).result().get_counts()
             # TODO check if reverse is necessary
             reversed_result = {}
             # for key, value in results.items():
@@ -40,11 +38,11 @@ class IBMCircuitExecutor(CircuitExecutor):
 
 class IonQCircuitExecutor(CircuitExecutor):
     def execute_circuits(self, circuits, qpu, credentials, shots):
-        provider = IonQProvider(credentials)
+        provider = IonQProvider(**credentials)
         backend = provider.get_backend(qpu)
-        return execute(
-            circuits, backend=backend, shots=shots, optimization_level=0
-        ).result()
+        jobs = [execute(c, backend=backend, shots=shots) for c in circuits]
+        counts = [j.result().get_counts() for j in jobs]
+        return counts
 
 
 class RigettiCircuitExecutor(CircuitExecutor):

@@ -1,4 +1,5 @@
 import numpy as np
+from qiskit.result import Counts
 
 
 def dict_to_array(counts_dict: dict, n_qubits: int):
@@ -165,6 +166,14 @@ def deprecated(reason):
     else:
         raise TypeError(repr(type(reason)))
 
+
+class ResultsMock():
+    def __init__(self, counts: list):
+        """ counts: list of dict """
+        self.counts = [Counts(c) for c in counts]
+
+    def get_counts(self, i:int):
+        return self.counts[i]
 
 if __name__ == "__main__":
     dict = {

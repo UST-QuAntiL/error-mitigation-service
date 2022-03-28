@@ -66,6 +66,7 @@ def mitigate_results(request: REMRequest):
             if mitigator is not None:
                 if len(request.counts) != len(request.qubits):
                     for c in request.counts:
+                        c = c[2]
                         solution_counts.append(
                             perform_mitigation(
                                 c, qubits, metadata, application_method, mitigator

@@ -1,5 +1,5 @@
 from app.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
-from app.model.cmgen_request import CMGetRequest, CMGenRequest
+from app.model.cmgen_request import CMGetRequest, CMGenRequest, CMGenFromCountsRequest
 from app.model.matrix_types import MatrixType
 from app.services.cmgen_services.circuit_executor import (
     IBMCircuitExecutor,
@@ -11,6 +11,7 @@ from app.services.cmgen_services.circuit_generator import (
     CTMPCMGenerator,
     TPNMCMGenerator,
 )
+from app.utils.helper_functions import ResultsMock
 
 
 def retrieve_executor(provider: str):
@@ -35,12 +36,12 @@ def retrieve_generator(method: str):
 
 def generate_cm(request: CMGenRequest):
     generator = retrieve_generator(request.cm_gen_method)
-    circuits, labels = generator.generate_cm_circuits(request.qubits)
+    circuits = generator.generate_cm_circuits(request.qubits)
     executor = retrieve_executor(request.provider.lower())
-    results = executor.execute_circuits(
+    counts = executor.execute_circuits(
         circuits, request.qpu, request.credentials, request.shots
     )
-    cm = generator.compute_cm(results, labels)
+    cm = generator.compute_cm(counts)
     return store_matrix_object_in_db(
         cm,
         request.qpu,
@@ -59,11 +60,22 @@ def retrieve_cm(req: CMGetRequest):
         max_age=req.max_age,
     )
 
+def generate_cm_from_counts(request: CMGenFromCountsRequest):
+    generator = retrieve_generator(request.cm_gen_method)
+    counts = request.counts
+    cm = generator.compute_cm(counts)
+    return store_matrix_object_in_db(
+        cm,
+        request.qpu,
+        MatrixType.cm,
+        qubits=request.qubits,
+        cm_gen_method=request.cm_gen_method,
+    )
 
 if __name__ == "__main__":
     from credentials import Credentials as credentials
 
-    # STandard
+    # Standard
     # json = {'cm_gen_method': 'standard', 'qpu': 'ibmq_lima', 'provider': 'IBM', 'shots': 10, 'credentials': credentials.CREDENTIALS_US, 'qubits': [1, 2, 3, 7]}
     # TPNM
     json = {

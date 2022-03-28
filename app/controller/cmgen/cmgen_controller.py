@@ -2,10 +2,11 @@ from flask_smorest import Blueprint
 from ...model.cmgen_request import (
     CMGenRequest,
     CMGenRequestSchema,
-    CMGetRequestSchema,
+    CMGenFromCountsRequestSchema,
+    CMGenFromCountsRequest,
     CMGetRequest,
 )
-from app.services.cmgen_services.cmgen_service import generate_cm, retrieve_cm
+from app.services.cmgen_services.cmgen_service import generate_cm, retrieve_cm, generate_cm_from_counts
 from flask import request
 
 blp = Blueprint(
@@ -34,6 +35,22 @@ def generate(json: CMGenRequest):
     if json:
         return generate_cm(CMGenRequest(**json))
 
+
+@blp.route("/fromCounts", methods=["POST"])
+@blp.arguments(
+    CMGenFromCountsRequestSchema,
+    example=dict(
+        counts="[{'0':990, '1':10},{'0':30, '1':970}]",
+        qpu="ibmq_lima",
+        method="standard",
+        qubits=[0],
+    ),
+)
+@blp.response(200)
+def generate(json: CMGenFromCountsRequest):
+    print(json)
+    if json:
+        return generate_cm_from_counts(CMGenFromCountsRequest(**json))
 
 @blp.route("/", methods=["GET"])
 @blp.response(200)
