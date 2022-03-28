@@ -60,6 +60,7 @@ def retrieve_cm(req: CMGetRequest):
         max_age=req.max_age,
     )
 
+
 def generate_cm_from_counts(request: CMGenFromCountsRequest):
     generator = retrieve_generator(request.cm_gen_method)
     counts = request.counts
@@ -71,6 +72,7 @@ def generate_cm_from_counts(request: CMGenFromCountsRequest):
         qubits=request.qubits,
         cm_gen_method=request.cm_gen_method,
     )
+
 
 if __name__ == "__main__":
     from credentials import Credentials as credentials

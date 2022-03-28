@@ -24,9 +24,11 @@ class IBMCircuitExecutor(CircuitExecutor):
             #     bulk_circuits = transpile(circuits, backend=backend)
             #     res = jobmanager.run(bulk_circuits, backend=backend, shots=shots).results()
             #     counts = [res.get_counts(i) for i in range(len(bulk_circuits))]
-            results = execute(
-                circuits, backend=backend, shots=shots, optimization_level=0
-            ).result().get_counts()
+            results = (
+                execute(circuits, backend=backend, shots=shots, optimization_level=0)
+                .result()
+                .get_counts()
+            )
             # TODO check if reverse is necessary
             reversed_result = {}
             # for key, value in results.items():

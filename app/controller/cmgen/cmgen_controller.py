@@ -6,7 +6,11 @@ from ...model.cmgen_request import (
     CMGenFromCountsRequest,
     CMGetRequest,
 )
-from app.services.cmgen_services.cmgen_service import generate_cm, retrieve_cm, generate_cm_from_counts
+from app.services.cmgen_services.cmgen_service import (
+    generate_cm,
+    retrieve_cm,
+    generate_cm_from_counts,
+)
 from flask import request
 
 blp = Blueprint(
@@ -51,6 +55,7 @@ def generate(json: CMGenFromCountsRequest):
     print(json)
     if json:
         return generate_cm_from_counts(CMGenFromCountsRequest(**json))
+
 
 @blp.route("/", methods=["GET"])
 @blp.response(200)

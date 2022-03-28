@@ -33,7 +33,7 @@ class StandardCMGenerator(CircuitGenerator):
         for i, column in enumerate(counts):
             for j, bitstring in enumerate(state_labels):
                 if bitstring in column:
-                    matrix[j,i] = column[bitstring]/shots
+                    matrix[j, i] = column[bitstring] / shots
         return matrix
 
 

@@ -1,6 +1,7 @@
 import marshmallow as ma
 from marshmallow import fields, ValidationError
 
+
 class CountsDictList(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, list):
@@ -49,6 +50,7 @@ class CMGetRequestSchema(ma.Schema):
     qubits = ma.fields.List(ma.fields.Integer(), required=True)
     max_age = ma.fields.Integer(required=False)
 
+
 class CMGenFromCountsRequest:
     def __init__(self, counts, cm_gen_method, qpu, qubits):
         self.counts = counts
@@ -62,5 +64,3 @@ class CMGenFromCountsRequestSchema(ma.Schema):
     cm_gen_method = ma.fields.String(required=True)
     qpu = ma.fields.String(required=True)
     qubits = ma.fields.List(ma.fields.Integer(), required=True)
-
-

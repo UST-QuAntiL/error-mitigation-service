@@ -167,13 +167,14 @@ def deprecated(reason):
         raise TypeError(repr(type(reason)))
 
 
-class ResultsMock():
+class ResultsMock:
     def __init__(self, counts: list):
-        """ counts: list of dict """
+        """counts: list of dict"""
         self.counts = [Counts(c) for c in counts]
 
-    def get_counts(self, i:int):
+    def get_counts(self, i: int):
         return self.counts[i]
+
 
 if __name__ == "__main__":
     dict = {

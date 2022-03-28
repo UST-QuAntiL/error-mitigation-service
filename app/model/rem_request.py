@@ -9,7 +9,7 @@ class REMRequest:
         qpu,
         qubits,
         mitigation_method,
-        cm_gen_method =None,
+        cm_gen_method=None,
         time_of_execution=None,
         provider=None,
         shots=None,
