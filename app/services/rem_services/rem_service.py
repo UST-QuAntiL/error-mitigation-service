@@ -66,7 +66,6 @@ def mitigate_results(request: REMRequest):
             if mitigator is not None:
                 if len(request.counts) != len(request.qubits):
                     for c in request.counts:
-                        c = c[2]
                         solution_counts.append(
                             perform_mitigation(
                                 c, qubits, metadata, application_method, mitigator
@@ -169,42 +168,6 @@ def mitigate_results(request: REMRequest):
 if __name__ == "__main__":
     from credentials import Credentials as credentials
 
-    json = {
-        "counts": {
-            "111": 129,
-            "000": 131,
-            "101": 134,
-            "100": 142,
-            "011": 97,
-            "110": 117,
-            "001": 125,
-            "010": 125,
-        },
-        "mitigation_method": "inversion",
-        "cm_gen_method": "standard",
-        "qpu": "ibmq_lima",
-        "qubits": [3, 1, 2],
-        "max_age": 1,
-    }
-    json = {
-        "counts": {
-            "111": 129,
-            "000": 131,
-            "101": 134,
-            "100": 142,
-            "011": 97,
-            "110": 117,
-            "001": 125,
-            "010": 125,
-        },
-        "mitigation_method": "inversion",
-        "cm_gen_method": "standard",
-        "qpu": "ibmq_lima",
-        "qubits": [3, 1, 2],
-        "max_age": 3,
-        "credentials": credentials.CREDENTIALS_US,
-        "provider": "IBM",
-    }
     json = {
         "counts": {
             "111": 129,

@@ -1,10 +1,6 @@
 from abc import ABC, abstractmethod
-
-from qiskit import IBMQ, execute, transpile
-from qiskit.providers.ibmq import IBMQBackend, IBMQJobManager
+from qiskit import IBMQ, execute
 from qiskit_ionq import IonQProvider
-from pyquil import get_qc
-from qiskit.test.mock import FakeMontreal
 
 
 class CircuitExecutor(ABC):
@@ -19,6 +15,7 @@ class IBMCircuitExecutor(CircuitExecutor):
             provider = IBMQ.enable_account(**credentials)
             backend = provider.get_backend(qpu)
             # TODO split when too many circuits
+            # from qiskit.providers.ibmq import IBMQBackend, IBMQJobManager
             # if type(backend) == IBMQBackend:
             #     jobmanager = IBMQJobManager()  # works only with IBMQBackend typed backend, splits experiments into jobs
             #     bulk_circuits = transpile(circuits, backend=backend)
@@ -49,9 +46,16 @@ class IonQCircuitExecutor(CircuitExecutor):
 
 class RigettiCircuitExecutor(CircuitExecutor):
     def execute_circuits(self, circuits, qpu, credentials, shots):
-        qc = get_qc(qpu)
-        # TODO how to handle multiple programs/circuits
-        executable = qc.compile(circuits)
-        result = qc.run(executable)
-        bitstrings = result.readout_data.get("ro")
-        return bitstrings
+        #################################################################
+        #                                                               #
+        #   Rigetti does not support API circuit execution yet          #
+        #   Generate & Execute circuits via Rigetti Jupyter Lab and     #
+        #   import counts into REM Service via the /cm/fromCounts API   #
+        #                                                               #
+        #################################################################
+        # qc = get_qc(qpu)
+        # executable = qc.compile(circuits)
+        # result = qc.run(executable)
+        # bitstrings = result.readout_data.get("ro")
+        # return bitstrings
+        raise NotImplementedError("Rigetti circuits can not be executed via API yet")

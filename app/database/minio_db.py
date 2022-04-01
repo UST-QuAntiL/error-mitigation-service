@@ -1,7 +1,6 @@
 import io
 import pickle
 from minio import Minio
-import sys
 from app.model.matrix_types import MatrixType
 from config import Config
 import os
@@ -9,7 +8,6 @@ import numpy as np
 from datetime import datetime
 
 
-print(Config.MINIO_ENDPOINT)
 client = Minio(
     Config.MINIO_ENDPOINT,
     access_key=Config.MINIO_USER,
@@ -70,7 +68,7 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
         )
         return filename
     except:
-        raise
+        raise ConnectionError("File could not be stored in DB")
 
 
 def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
@@ -170,7 +168,7 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
             matrix_data.seek(0)
             matrix = pickle.load(matrix_data)
         except:
-            raise
+            raise ConnectionError("File could not be loaded")
         finally:
             response.close()
             response.release_conn()
@@ -197,6 +195,8 @@ def load_mitigator_object_from_db_by_filename(
         matrix_data = io.BytesIO(response.data)
         matrix_data.seek(0)
         matrix = pickle.load(matrix_data)
+    except:
+        raise ConnectionError("File could not be loaded")
     finally:
         response.close()
         response.release_conn()

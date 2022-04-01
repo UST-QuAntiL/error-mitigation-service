@@ -11,7 +11,6 @@ from app.services.cmgen_services.circuit_generator import (
     CTMPCMGenerator,
     TPNMCMGenerator,
 )
-from app.utils.helper_functions import ResultsMock
 
 
 def retrieve_executor(provider: str):
@@ -77,9 +76,6 @@ def generate_cm_from_counts(request: CMGenFromCountsRequest):
 if __name__ == "__main__":
     from credentials import Credentials as credentials
 
-    # Standard
-    # json = {'cm_gen_method': 'standard', 'qpu': 'ibmq_lima', 'provider': 'IBM', 'shots': 10, 'credentials': credentials.CREDENTIALS_US, 'qubits': [1, 2, 3, 7]}
-    # TPNM
     json = {
         "cm_gen_method": "tpnm",
         "qpu": "ibmq_lima",
@@ -90,4 +86,3 @@ if __name__ == "__main__":
     }
     req = CMGenRequest(**json)
     res = generate_cm(req)
-    print("test")

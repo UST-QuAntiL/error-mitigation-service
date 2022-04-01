@@ -27,7 +27,7 @@ def sort_dict_by_qubitorder(
     :param counts_dict: dictionary containing measurement counts
     :param counts_qubits:  list containing qubit order of measurement qubits
     :param mitigator_qubits:  list containing qubit order when creating mitigator
-    :return:
+    :return: counts in qubit order
     """
     mapping = []
     for i in mitigator_qubits:
@@ -46,7 +46,7 @@ def restore_dict_by_qubitorder(
 ):
     """
     :param adjusted_counts_dict: dictionary containing measurement counts
-    :return:
+    :return: counts in restored qubit order
     """
     mapping = []
     for i in counts_qubits:
@@ -58,33 +58,6 @@ def restore_dict_by_qubitorder(
             newkey += key[i]
         sorted_dict[newkey] = value
     return sorted_dict
-
-
-# qubits [2,4,1]
-# qubits_mm[0,1,2,4,5]
-# mapping_to_array_position [2,3,1]
-# key = '101'
-# position = 011000
-# TODO not properly working
-def countsdict_to_array(dict, qubits, qubits_mm):
-    vector = np.zeros(2 ** len(qubits_mm))
-    indices_mapping = []
-    for qubit in qubits:
-        indices_mapping.append(qubits_mm.index(qubit))
-    for key, val in dict.items():
-        binary = ""
-        for i in range(len(qubits_mm)):
-
-            if i in indices_mapping:
-                index_in_qubits = indices_mapping.index(i)
-                # index = qubits[index_in_qubits]
-                binary += key[index_in_qubits]
-            else:
-                binary += "0"
-            print(binary)
-        array_index = int(binary, 2)
-        vector[array_index] = val
-    print(vector)
 
 
 import functools
@@ -187,10 +160,6 @@ if __name__ == "__main__":
         "001": 125,
         "010": 125,
     }
-    # qubits =[2,4,1]
-    # qubits_mm = [0,1,2,4,5]
-    #
-    # countsdict_to_array(dict,qubits,qubits_mm)
 
     counts_qubits = [4, 2, 7]
     mitiagor_qubits = [7, 4, 2]

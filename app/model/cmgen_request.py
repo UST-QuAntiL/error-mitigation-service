@@ -9,11 +9,11 @@ class CountsDictList(fields.Field):
                 return value
             else:
                 raise ValidationError(
-                    "Field should be list of integers or dict with bitstring as key and counts as measurement, e.g., [{'0': 980, '1': 20}] "
+                    "Field should be list of dicts with bitstring as key and counts as measurement, e.g., [{'0': 980, '1': 20}] "
                 )
         else:
             raise ValidationError(
-                "Field should be list of integers or dict with bitstring as key and counts as measurement, e.g., [{'0': 980, '1': 20}] "
+                "Field should be list of dicts with bitstring as key and counts as measurement, e.g., [{'0': 980, '1': 20}] "
             )
 
 

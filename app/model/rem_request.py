@@ -28,6 +28,23 @@ class REMRequest:
         self.credentials = credentials
 
 
+class CountsField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, list):
+            if all(isinstance(x, dict) for x in value):
+                return value
+            else:
+                raise ValidationError(
+                    "Field should be list of dicts with bitstring as key and counts as measurement, e.g., [{'0': 980, '1': 20}] "
+                )
+        elif isinstance(value, dict):
+            return value
+        else:
+            raise ValidationError(
+                "Field should be list of dicts with bitstring as key and counts as measurement, e.g., [{'0': 980, '1': 20}] "
+            )
+
+
 class QubitsArrayField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, list):
@@ -48,14 +65,17 @@ class QubitsArrayField(fields.Field):
 
 
 class REMRequestSchema(ma.Schema):
-
-    counts = ma.fields.Raw(required=True)
+    counts = CountsField(required=True)
     cm_gen_method = ma.fields.String(required=False)
     mitigation_method = ma.fields.String(required=False)
     qpu = ma.fields.String(required=True)
-    qubits = QubitsArrayField()
+    qubits = QubitsArrayField(required=True)
     max_age = ma.fields.Integer(required=False)
-    time_of_execution = ma.fields.DateTime("%Y-%m-%d_%H-%M-%S", required=False)
+    time_of_execution = ma.fields.DateTime(
+        "%Y-%m-%d_%H-%M-%S", required=False, description="format:Y-m-d_H-M-S"
+    )
     provider = ma.fields.String(required=False)
     shots = ma.fields.Integer(required=False)
-    credentials = ma.fields.Raw(required=False)
+    credentials = ma.fields.Raw(
+        required=False, description="Dictionary containing all required credentials"
+    )

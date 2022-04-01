@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
-
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.ignis.mitigation import CompleteMeasFitter, tensored_meas_cal
+from qiskit.ignis.mitigation import tensored_meas_cal
 import qiskit.ignis.mitigation as mit
-from sympy.physics.units import bits
 
 from app.services.cmgen_services.sparse_fitter import SparseExpvalMeasMitigatorFitter
 from app.utils.helper_functions import ResultsMock

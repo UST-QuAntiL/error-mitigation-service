@@ -14,7 +14,6 @@ from app.services.cmgen_services.cmgen_service import (
 from app.model.mmgen_request import MMGenRequest
 from app.model.cmgen_request import CMGenRequest
 from datetime import datetime
-from qiskit.test.mock import FakeMontreal
 
 
 def mitigation_generator(method):
@@ -37,6 +36,8 @@ def generate_mthree_mitigator(request: MMGenRequest):
         if request.provider == "ibm":
             provider = IBMQ.enable_account(**credentials)
             backend = provider.get_backend(request.qpu)
+            # For testing on a fake backend uncomment below
+            # from qiskit.test.mock import FakeMontreal
             # backend = FakeMontreal()
         elif request.provider == "ionq":
             backend = IonQProvider(request.credentials).get_backend(request.qpu)
@@ -89,7 +90,7 @@ def generate_mm_from_cm(request: MMGenRequest):
             max_age=request.max_age,
         )
     except:
-        raise
+        raise ConnectionError("Could not access DB")
 
     if cm is None:
         cmgenrequest = CMGenRequest(
@@ -146,7 +147,5 @@ if __name__ == "__main__":
         "shots": 10,
         "credentials": credentials.CREDENTIALS_US,
     }
-    # json = {'cm_gen_method': 'tpnm', 'mitigation_method':'tpnm', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'ibm', 'shots': 10, 'credentials': credentials.CREDENTIALS_US}
-    # json = {'cm_gen_method': 'mthree', 'mitigation_method':'mthree', 'qpu': 'ibmq_lima', 'qubits':[1,2,3,4], 'provider': 'ibm', 'shots': 10, 'credentials': credentials.CREDENTIALS_US}
     req = MMGenRequest(**json)
     print(generate_mm(req))
