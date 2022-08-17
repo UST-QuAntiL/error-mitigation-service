@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+from time import sleep
+
 from qiskit import IBMQ, execute
 from qiskit_ionq import IonQProvider
-
+import requests
+import json
 
 class CircuitExecutor(ABC):
     @abstractmethod
@@ -11,28 +14,37 @@ class CircuitExecutor(ABC):
 
 class IBMCircuitExecutor(CircuitExecutor):
     def execute_circuits(self, circuits, qpu, credentials, shots):
-        try:
-            provider = IBMQ.enable_account(**credentials)
-            backend = provider.get_backend(qpu)
-            # TODO split when too many circuits
-            # from qiskit.providers.ibmq import IBMQBackend, IBMQJobManager
-            # if type(backend) == IBMQBackend:
-            #     jobmanager = IBMQJobManager()  # works only with IBMQBackend typed backend, splits experiments into jobs
-            #     bulk_circuits = transpile(circuits, backend=backend)
-            #     res = jobmanager.run(bulk_circuits, backend=backend, shots=shots).results()
-            #     counts = [res.get_counts(i) for i in range(len(bulk_circuits))]
-            results = (
-                execute(circuits, backend=backend, shots=shots, optimization_level=0)
-                .result()
-                .get_counts()
-            )
-            # TODO check if reverse is necessary
-            reversed_result = {}
-            # for key, value in results.items():
-            #     reversed_result[key.reverse()] = value
-        finally:
-            IBMQ.disable_account()
-        return results
+        qasm_list = [circuit.qasm() for circuit in circuits]
+        prepared_credentials = dict(((key, {"rawValue": value, "type": "Unknown"}) for key, value in credentials.items()))
+        request = {"transpiled-qasm": qasm_list,
+                           "qpu-name": qpu,
+                           "input-params": prepared_credentials
+                }
+        print(request)
+        url_prefix = 'http://qiskit-service:5013/'   #http://localhost:5013/
+        response = requests.post(url_prefix + "qiskit-service/api/v1.0/execute", json=request)
+        if response.status_code == 202:
+            while (True):
+                get_response = requests.get(url_prefix + response.json()['Location']).json()
+                complete = get_response['complete']
+                if complete:
+                    return get_response['result']
+                else:
+                    print("checking result availability for result " + url_prefix + response.json()['Location'])
+                    sleep(5)
+
+        # alternative local execution without qiskit-service
+        #try:
+            # provider = IBMQ.enable_account(**credentials)
+            # backend = provider.get_backend(qpu)
+            # results = (
+            #     execute(circuits, backend=backend, shots=shots, optimization_level=0)
+            #     .result()
+            #     .get_counts()
+            # )
+        # finally:
+        #     IBMQ.disable_account()
+        # return results
 
 
 class IonQCircuitExecutor(CircuitExecutor):

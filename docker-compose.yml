@@ -50,7 +50,7 @@ services:
       - default
 
   error-mitigation-service:
-    #build: .
+    build: .
     image: planqk/error-mitigation-service:v0.1.0
     command: app.py
     ports:
@@ -59,6 +59,50 @@ services:
       - MINIO_URL=nginx:9000
     depends_on:
       - nginx
+    networks:
+      - default
+      
+  redis:
+    image: redis:latest
+    command: --port 5040
+    ports:
+      - "5040:5040"
+    networks:
+      - default
+      
+  qiskit-service:
+    image: planqk/qiskit-service:latest
+    command: sh /app/startup.sh
+    ports:
+      - "5013:5013"
+    environment:
+      - REDIS_URL=redis://redis:5040
+      - DATABASE_URL=sqlite:////data/app.db
+    volumes:
+      - exec_data:/data
+    networks:
+      - default
+
+  qiskit-rq-worker:
+    image: planqk/qiskit-service:latest
+    command: rq worker --url redis://redis:5040 qiskit-service_execute
+    environment:
+      - REDIS_URL=redis://redis:5040
+      - DATABASE_URL=sqlite:////data/app.db
+    volumes:
+      - exec_data:/data
+    depends_on:
+      - redis
+    deploy:
+      replicas: 2
+
+  
+  rq-dashboard:
+    image: eoranged/rq-dashboard
+    ports:
+      - "9181:9181"
+    environment:
+      - RQ_DASHBOARD_REDIS_URL=redis://redis:5040
 
 
 ## By default this config uses default local driver,
@@ -68,3 +112,8 @@ volumes:
   data1-2:
   data2-1:
   data2-2:
+  exec_data:
+
+networks:
+  default:
+    driver: bridge
