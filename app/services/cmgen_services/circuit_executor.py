@@ -6,6 +6,7 @@ from qiskit_ionq import IonQProvider
 import requests
 import json
 
+
 class CircuitExecutor(ABC):
     @abstractmethod
     def execute_circuits(self, circuits, qpu, credentials, shots):
@@ -15,33 +16,47 @@ class CircuitExecutor(ABC):
 class IBMCircuitExecutor(CircuitExecutor):
     def execute_circuits(self, circuits, qpu, credentials, shots):
         qasm_list = [circuit.qasm() for circuit in circuits]
-        prepared_credentials = dict(((key, {"rawValue": value, "type": "Unknown"}) for key, value in credentials.items()))
-        request = {"transpiled-qasm": qasm_list,
-                           "qpu-name": qpu,
-                           "input-params": prepared_credentials
-                }
+        prepared_credentials = dict(
+            (
+                (key, {"rawValue": value, "type": "Unknown"})
+                for key, value in credentials.items()
+            )
+        )
+        request = {
+            "transpiled-qasm": qasm_list,
+            "qpu-name": qpu,
+            "input-params": prepared_credentials,
+        }
         print(request)
-        url_prefix = 'http://qiskit-service:5013/'   #http://localhost:5013/
-        response = requests.post(url_prefix + "qiskit-service/api/v1.0/execute", json=request)
+        url_prefix = "http://qiskit-service:5013/"  # http://localhost:5013/
+        response = requests.post(
+            url_prefix + "qiskit-service/api/v1.0/execute", json=request
+        )
         if response.status_code == 202:
-            while (True):
-                get_response = requests.get(url_prefix + response.json()['Location']).json()
-                complete = get_response['complete']
+            while True:
+                get_response = requests.get(
+                    url_prefix + response.json()["Location"]
+                ).json()
+                complete = get_response["complete"]
                 if complete:
-                    return get_response['result']
+                    return get_response["result"]
                 else:
-                    print("checking result availability for result " + url_prefix + response.json()['Location'])
+                    print(
+                        "checking result availability for result "
+                        + url_prefix
+                        + response.json()["Location"]
+                    )
                     sleep(5)
 
         # alternative local execution without qiskit-service
-        #try:
-            # provider = IBMQ.enable_account(**credentials)
-            # backend = provider.get_backend(qpu)
-            # results = (
-            #     execute(circuits, backend=backend, shots=shots, optimization_level=0)
-            #     .result()
-            #     .get_counts()
-            # )
+        # try:
+        # provider = IBMQ.enable_account(**credentials)
+        # backend = provider.get_backend(qpu)
+        # results = (
+        #     execute(circuits, backend=backend, shots=shots, optimization_level=0)
+        #     .result()
+        #     .get_counts()
+        # )
         # finally:
         #     IBMQ.disable_account()
         # return results
