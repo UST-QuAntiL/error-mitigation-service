@@ -52,10 +52,10 @@ services:
 
   error-mitigation-service:
     build: .
-    image: planqk/error-mitigation-service:v0.2.0
+    image: planqk/error-mitigation-service:v0.3.0
     command: app.py
     ports:
-      - "5071:5000"
+      - "5071:5071"
     environment:
       - MINIO_URL=nginx:9000
     depends_on:

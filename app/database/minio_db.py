@@ -113,8 +113,6 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     if kwargs is not None:
         fitting_matrices = matrix_list
         if qubits is not None:
-            for matrix in fitting_matrices:
-                print(matrix)
             fitting_matrices = [
                 matrix
                 for matrix in fitting_matrices
