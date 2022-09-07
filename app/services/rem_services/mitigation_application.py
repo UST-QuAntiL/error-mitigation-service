@@ -26,7 +26,7 @@ class MatrixMultiplication(MitigationApplication):
         counts = kwargs["counts"]
         array_counts = dict_to_array(counts, n_qubits)
         if issparse(mitigator):
-            #res = mitigator.multiply(np.ndarray(array_counts))
+            # res = mitigator.multiply(np.ndarray(array_counts))
             res = list(np.matmul(mitigator.toarray(), array_counts))
         else:
             res = list(np.matmul(mitigator, array_counts))

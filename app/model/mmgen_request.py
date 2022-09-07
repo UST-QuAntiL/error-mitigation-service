@@ -13,7 +13,7 @@ class MMGenRequest:
         shots=1000,
         max_age=1440,
         noise_model=None,
-        only_measurement_errors=False
+        only_measurement_errors=False,
     ):
         self.provider = provider
         self.qpu = qpu
@@ -42,8 +42,14 @@ class MMGenRequestSchema(ma.Schema):
 
 class MMGetRequest:
     def __init__(
-        self, qpu, mitigation_method=None, cm_gen_method=None, qubits=None, max_age=1440, noise_model=None,
-            only_measurement_errors=False
+        self,
+        qpu,
+        mitigation_method=None,
+        cm_gen_method=None,
+        qubits=None,
+        max_age=1440,
+        noise_model=None,
+        only_measurement_errors=False,
     ):
         self.qpu = qpu
         self.qubits = qubits
@@ -52,6 +58,7 @@ class MMGetRequest:
         self.max_age = max_age
         self.noise_model = noise_model
         self.only_measurement_errors = only_measurement_errors
+
 
 class MMGetRequestSchema(ma.Schema):
     mitigation_method = ma.fields.String(required=True, example="inversion")

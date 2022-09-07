@@ -17,6 +17,7 @@ client = Minio(
 
 TMPDIR = os.path.join(os.getcwd(), "tmp")
 
+
 def check_if_bucket_exists(bucketname):
     # Make QPU bucket if not exist.
     found = client.bucket_exists(bucketname)
@@ -25,6 +26,7 @@ def check_if_bucket_exists(bucketname):
         print("Bucket '" + bucketname + "' created")
     else:
         print("Bucket '" + bucketname + "' already exists")
+
 
 def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
     """
@@ -118,15 +120,13 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
                 if set(qubits) == set(matrix["qubits"])
             ]
         if kwargs is not None:
-            for k,v in kwargs.items():
-                if k and v and k != 'max_age':
+            for k, v in kwargs.items():
+                if k and v and k != "max_age":
                     # Boolean values are stored as strings in the database metadata --> convert to string for comparison
                     v = str(v) if isinstance(v, bool) else v
 
                     fitting_matrices = [
-                        matrix
-                        for matrix in fitting_matrices
-                        if v == matrix[k]
+                        matrix for matrix in fitting_matrices if v == matrix[k]
                     ]
 
         # Return matrix generated closest to the time of execution (if given) or most recently

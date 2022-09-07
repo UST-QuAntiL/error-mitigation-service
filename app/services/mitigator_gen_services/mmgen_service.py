@@ -21,8 +21,10 @@ def mitigation_generator(method):
     if method == "inversion":
         return MatrixInversion()
     else:
-        raise Exception("Currently only the Inversion method is supported for the the generation"
-                        " of a storable mitigator that is based on an already existing CM")
+        raise Exception(
+            "Currently only the Inversion method is supported for the the generation"
+            " of a storable mitigator that is based on an already existing CM"
+        )
 
 
 def generate_mm(request: MMGenRequest):
@@ -37,7 +39,9 @@ def generate_mm(request: MMGenRequest):
 
 def generate_mthree_mitigator(request: MMGenRequest):
     if request.noise_model:
-        raise NotImplementedError("The Mthree library does currently not support noisy simulators")
+        raise NotImplementedError(
+            "The Mthree library does currently not support noisy simulators"
+        )
     try:
         if request.provider == "ibm":
             provider = IBMQ.enable_account(**request.credentials)
@@ -72,7 +76,12 @@ def generate_mm_from_skratch(request: MMGenRequest):
     circuits = generator.generate_cm_circuits(request.qubits)
     executor = retrieve_executor(request.provider)
     results = executor.execute_circuits(
-        circuits, request.qpu, request.credentials, request.shots, request.noise_model, request.only_measurement_errors
+        circuits,
+        request.qpu,
+        request.credentials,
+        request.shots,
+        request.noise_model,
+        request.only_measurement_errors,
     )
     cm = generator.compute_sparse_mm(results)
     return store_matrix_object_in_db(

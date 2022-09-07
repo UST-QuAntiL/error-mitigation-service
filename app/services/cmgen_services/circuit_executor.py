@@ -14,12 +14,16 @@ import json
 
 class CircuitExecutor(ABC):
     @abstractmethod
-    def execute_circuits(self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors):
+    def execute_circuits(
+        self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors
+    ):
         pass
 
 
 class IBMCircuitExecutor(CircuitExecutor):
-    def execute_circuits(self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors):
+    def execute_circuits(
+        self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors
+    ):
         if noise_model:
             noisy_qpu = get_qpu(credentials, noise_model)
             noise_model = NoiseModel.from_backend(noisy_qpu)
@@ -28,16 +32,22 @@ class IBMCircuitExecutor(CircuitExecutor):
             basis_gates = noise_model.basis_gates
             transpiled_circuit = transpile(circuits, noisy_qpu, optimization_level=0)
 
-
             if only_measurement_errors:
                 ro_noise_model = NoiseModel()
                 for k, v in noise_model._local_readout_errors.items():
-                    ro_noise_model.add_readout_error(v,k)
+                    ro_noise_model.add_readout_error(v, k)
                 noise_model = ro_noise_model
 
             backend = AerSimulator()
-            job = execute(transpiled_circuit, backend=backend, coupling_map=coupling_map,
-                                 basis_gates=basis_gates, noise_model=noise_model, shots=shots, optimization_level=0)
+            job = execute(
+                transpiled_circuit,
+                backend=backend,
+                coupling_map=coupling_map,
+                basis_gates=basis_gates,
+                noise_model=noise_model,
+                shots=shots,
+                optimization_level=0,
+            )
             result_counts = job.result().get_counts()
             return result_counts
         else:
@@ -89,9 +99,13 @@ class IBMCircuitExecutor(CircuitExecutor):
 
 
 class IonQCircuitExecutor(CircuitExecutor):
-    def execute_circuits(self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors):
+    def execute_circuits(
+        self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors
+    ):
         if noise_model:
-            raise NotImplementedError("No noisy simulation implemented for IonQ devices yet")
+            raise NotImplementedError(
+                "No noisy simulation implemented for IonQ devices yet"
+            )
         provider = IonQProvider(**credentials)
         backend = provider.get_backend(qpu)
         jobs = [execute(c, backend=backend, shots=shots) for c in circuits]
@@ -100,7 +114,9 @@ class IonQCircuitExecutor(CircuitExecutor):
 
 
 class RigettiCircuitExecutor(CircuitExecutor):
-    def execute_circuits(self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors):
+    def execute_circuits(
+        self, circuits, qpu, credentials, shots, noise_model, only_measurement_errors
+    ):
         #################################################################
         #                                                               #
         #   Rigetti does not support API circuit execution yet          #
@@ -128,5 +144,7 @@ def get_qpu(credentials, qpu):
             backend = provider.get_backend(qpu)
             return backend
     except (QiskitBackendNotFoundError, RequestsApiError):
-        print('Backend could not be retrieved. Backend name or credentials are invalid. Be sure to use the schema credentials: {"token": "YOUR_TOKEN", "hub": "YOUR_HUB", "group": "YOUR GROUP", "project": "YOUR_PROJECT"). Note that "ibm-q/open/main" are assumed as default values for "hub", "group", "project".')
+        print(
+            'Backend could not be retrieved. Backend name or credentials are invalid. Be sure to use the schema credentials: {"token": "YOUR_TOKEN", "hub": "YOUR_HUB", "group": "YOUR GROUP", "project": "YOUR_PROJECT"). Note that "ibm-q/open/main" are assumed as default values for "hub", "group", "project".'
+        )
         return None

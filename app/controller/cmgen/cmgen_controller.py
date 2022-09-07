@@ -5,7 +5,7 @@ from ...model.cmgen_request import (
     CMGenFromCountsRequestSchema,
     CMGenFromCountsRequest,
     CMGetRequest,
-    CMGetRequestSchema
+    CMGetRequestSchema,
 )
 from app.services.cmgen_services.cmgen_service import (
     generate_cm,
@@ -25,14 +25,16 @@ blp = Blueprint(
 @blp.route("/", methods=["POST"])
 @blp.arguments(
     CMGenRequestSchema,
-    example={"provider" : "IBM",
-                 "qpu" : "aer_qasm_simulator",
-                 "credentials" : {"token": "YOUR_TOKEN"},
-                 "qubits": [0, 1, 2, 3, 4],
-                 "cm_gen_method": "standard",
-                 "shots" : 1000,
-                 "noise_model" : "ibmq_lima",
-                 "only_measurement_errors": False},
+    example={
+        "provider": "IBM",
+        "qpu": "aer_qasm_simulator",
+        "credentials": {"token": "YOUR_TOKEN"},
+        "qubits": [0, 1, 2, 3, 4],
+        "cm_gen_method": "standard",
+        "shots": 1000,
+        "noise_model": "ibmq_lima",
+        "only_measurement_errors": False,
+    },
 )
 @blp.response(200)
 def generate(json: CMGenRequest):
@@ -45,7 +47,7 @@ def generate(json: CMGenRequest):
 @blp.arguments(
     CMGenFromCountsRequestSchema,
     example=dict(
-        counts=[{"0":990, "1":10},{"0":30, "1":970}],
+        counts=[{"0": 990, "1": 10}, {"0": 30, "1": 970}],
         qpu="ibmq_lima",
         cm_gen_method="standard",
         qubits=[0],
@@ -70,8 +72,12 @@ def retrieve(request):
     only_measurement_errors = bool(request.get("only_measurement_errors"))
 
     req = CMGetRequest(
-        qpu=qpu, cm_gen_method=cm_gen_method, qubits=qubits, max_age=max_age,
-        noise_model=noise_model, only_measurement_errors=only_measurement_errors
+        qpu=qpu,
+        cm_gen_method=cm_gen_method,
+        qubits=qubits,
+        max_age=max_age,
+        noise_model=noise_model,
+        only_measurement_errors=only_measurement_errors,
     )
     cm, _ = retrieve_cm(req)
     return cm.tolist() if cm is not None else "No suitable matrix found"

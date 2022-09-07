@@ -16,7 +16,7 @@ class REMRequest:
         credentials=None,
         max_age=1440,
         noise_model=None,
-        only_measurement_errors=False
+        only_measurement_errors=False,
     ):
         self.qpu = qpu
         self.qubits = qubits

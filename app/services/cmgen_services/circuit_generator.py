@@ -87,4 +87,3 @@ class CTMPCMGenerator(CircuitGenerator):
         ]
         mitigator_ctmp = mit.ExpvalMeasMitigatorFitter(counts, state_labels).fit()
         return mitigator_ctmp.assignment_matrix()
-
