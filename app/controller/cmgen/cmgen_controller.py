@@ -5,6 +5,7 @@ from ...model.cmgen_request import (
     CMGenFromCountsRequestSchema,
     CMGenFromCountsRequest,
     CMGetRequest,
+    CMGetRequestSchema
 )
 from app.services.cmgen_services.cmgen_service import (
     generate_cm,
@@ -24,14 +25,14 @@ blp = Blueprint(
 @blp.route("/", methods=["POST"])
 @blp.arguments(
     CMGenRequestSchema,
-    example=dict(
-        provider="IBM",
-        qpu="ibmq_lima",
-        method="standard",
-        qubits=[0, 1, 2, 4],
-        shots=1000,
-        credentials="YOUR_CREDENTIALS",
-    ),
+    example={"provider" : "IBM",
+                 "qpu" : "aer_qasm_simulator",
+                 "credentials" : {"token": "YOUR_TOKEN"},
+                 "qubits": [0, 1, 2, 3, 4],
+                 "cm_gen_method": "standard",
+                 "shots" : 1000,
+                 "noise_model" : "ibmq_lima",
+                 "only_measurement_errors": False},
 )
 @blp.response(200)
 def generate(json: CMGenRequest):
@@ -44,9 +45,9 @@ def generate(json: CMGenRequest):
 @blp.arguments(
     CMGenFromCountsRequestSchema,
     example=dict(
-        counts="[{'0':990, '1':10},{'0':30, '1':970}]",
+        counts=[{"0":990, "1":10},{"0":30, "1":970}],
         qpu="ibmq_lima",
-        method="standard",
+        cm_gen_method="standard",
         qubits=[0],
     ),
 )
@@ -58,14 +59,19 @@ def generate(json: CMGenFromCountsRequest):
 
 
 @blp.route("/", methods=["GET"])
+@blp.arguments(CMGetRequestSchema, location="query")
 @blp.response(200)
-def retrieve():
-    qpu = str(request.args.get("qpu"))
-    cm_gen_method = str(request.args.get("cm_gen_method"))
-    qubits = request.args.get("qubits")
-    max_age = int(request.args.get("max_age"))
+def retrieve(request):
+    qpu = str(request.get("qpu"))
+    cm_gen_method = str(request.get("cm_gen_method"))
+    qubits = request.get("qubits")
+    max_age = int(request.get("max_age"))
+    noise_model = str(request.get("noise_model"))
+    only_measurement_errors = bool(request.get("only_measurement_errors"))
+
     req = CMGetRequest(
-        qpu=qpu, cm_gen_method=cm_gen_method, qubits=qubits, max_age=max_age
+        qpu=qpu, cm_gen_method=cm_gen_method, qubits=qubits, max_age=max_age,
+        noise_model=noise_model, only_measurement_errors=only_measurement_errors
     )
     cm, _ = retrieve_cm(req)
-    return cm
+    return cm.tolist() if cm is not None else "No suitable matrix found"

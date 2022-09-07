@@ -42,6 +42,7 @@ def perform_mitigation(counts, qubits, metadata, application_method, mitigator):
 
 
 def mitigate_results(request: REMRequest):
+    request.provider = request.provider.lower()
     application_method = application_generator(request.mitigation_method)
 
     if isinstance(request.qubits[0], int):
@@ -62,6 +63,8 @@ def mitigate_results(request: REMRequest):
                 cm_gen_method=request.cm_gen_method,
                 max_age=request.max_age,
                 time_of_execution=request.time_of_execution,
+                noise_model=request.noise_model,
+                only_measurement_errors=request.only_measurement_errors,
             )
             if mitigator is not None:
                 if len(request.counts) != len(request.qubits):
@@ -88,6 +91,8 @@ def mitigate_results(request: REMRequest):
                     credentials=request.credentials,
                     provider=request.provider,
                     max_age=request.max_age,
+                    noise_model=request.noise_model,
+                    only_measurement_errors=request.only_measurement_errors,
                 )
                 filename = generate_mm(mmgenrequest)
                 mitigator, metadata = load_mitigator_object_from_db_by_filename(
@@ -117,6 +122,8 @@ def mitigate_results(request: REMRequest):
                 cm_gen_method=request.cm_gen_method,
                 max_age=request.max_age,
                 time_of_execution=request.time_of_execution,
+                noise_model=request.noise_model,
+                only_measurement_errors=request.only_measurement_errors,
             )
             if cm is not None:
                 if len(request.counts) != len(request.qubits):
@@ -141,6 +148,8 @@ def mitigate_results(request: REMRequest):
                     shots=request.shots,
                     credentials=request.credentials,
                     provider=request.provider,
+                    noise_model=request.noise_model,
+                    only_measurement_errors=request.only_measurement_errors,
                 )
                 filename = generate_cm(cmgenrequest)
                 cm, metadata = load_mitigator_object_from_db_by_filename(

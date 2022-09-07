@@ -17,7 +17,6 @@ client = Minio(
 
 TMPDIR = os.path.join(os.getcwd(), "tmp")
 
-
 def check_if_bucket_exists(bucketname):
     # Make QPU bucket if not exist.
     found = client.bucket_exists(bucketname)
@@ -26,7 +25,6 @@ def check_if_bucket_exists(bucketname):
         print("Bucket '" + bucketname + "' created")
     else:
         print("Bucket '" + bucketname + "' already exists")
-
 
 def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwargs):
     """
@@ -73,7 +71,6 @@ def store_matrix_object_in_db(matrix, qpu: str, matrix_type: MatrixType, **kwarg
 
 def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     """
-
     :param qpu: Name of the used QPU
     :param matrix_type: CM or MM (CalibrationMatrix or MitigationMatrix)
     :param kwargs:
@@ -97,12 +94,7 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
     return_matrix = None
 
     qubits = kwargs["qubits"] if "qubits" in kwargs.keys() else None
-    cm_gen_method = (
-        kwargs["cm_gen_method"] if "cm_gen_method" in kwargs.keys() else None
-    )
-    mitigation_method = (
-        kwargs["mitigation_method"] if "mitigation_method" in kwargs.keys() else None
-    )
+
     time_of_execution = (
         kwargs["time_of_execution"] if "time_of_execution" in kwargs.keys() else None
     )
@@ -115,30 +107,31 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
             ).total_seconds()
         )
 
-    if qubits or cm_gen_method or mitigation_method:
+    # Check if matrix metadata matches request requirements
+    if kwargs is not None:
         fitting_matrices = matrix_list
         if qubits is not None:
             fitting_matrices = [
                 matrix
                 for matrix in fitting_matrices
+                # A matrix can be reused if the set is equal - the qubit order can be fixed in a later step
                 if set(qubits) == set(matrix["qubits"])
             ]
-        if cm_gen_method is not None:
-            fitting_matrices = [
-                matrix
-                for matrix in fitting_matrices
-                if cm_gen_method == matrix["cm_gen_method"]
-            ]
-        if mitigation_method is not None:
-            fitting_matrices = [
-                matrix
-                for matrix in fitting_matrices
-                if mitigation_method == matrix["mitigation_method"]
-            ]
+        if kwargs is not None:
+            for k,v in kwargs.items():
+                if k and v and k != 'max_age':
+                    # Boolean values are stored as strings in the database metadata --> convert to string for comparison
+                    v = str(v) if isinstance(v, bool) else v
 
+                    fitting_matrices = [
+                        matrix
+                        for matrix in fitting_matrices
+                        if v == matrix[k]
+                    ]
+
+        # Return matrix generated closest to the time of execution (if given) or most recently
         if fitting_matrices:
             if time_of_execution is not None:
-                # fitting_matrices.sort(key=get_time_diff)
                 return_matrix = sorted(fitting_matrices, key=get_time_diff)[0]
             else:
                 return_matrix = sorted(
@@ -146,11 +139,11 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
                 )[-1]
     else:
         if time_of_execution is not None:
-            # fitting_matrices.sort(key=get_time_diff)
             return_matrix = sorted(matrix_list, key=get_time_diff)[0]
         else:
             return_matrix = sorted(matrix_list, key=lambda x: x["cm_gen_date"])[-1]
 
+    # check if return matrix fulfills the max_age requirement
     max_age = kwargs["max_age"] if "max_age" in kwargs.keys() else None
     if return_matrix and (
         max_age is None
@@ -214,22 +207,6 @@ def get_obj_metadata(obj):
             updatedKey = str(key).replace("X-Amz-Meta-", "").lower()
             metadata[updatedKey] = value
     return metadata
-
-
-if __name__ == "__main__":
-    a = [[1.123123123123123123123123123, 2], [3, 4.1]]
-    store_matrix_object_in_db(
-        matrix=a,
-        qpu="ibmq-test",
-        matrix_type=MatrixType.cm,
-        qubits=[0, 1, 2, 3, 4],
-        cm_gen_method="standard",
-        test="1",
-    )
-    res = load_matrix_object_from_db(
-        qpu="ibmq-test", matrix_type=MatrixType.cm, qubits=[1, 2, 3, 4]
-    )
-    print(res)
 
 
 ########################################################

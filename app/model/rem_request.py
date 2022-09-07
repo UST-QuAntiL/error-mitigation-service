@@ -15,6 +15,8 @@ class REMRequest:
         shots=None,
         credentials=None,
         max_age=1440,
+        noise_model=None,
+        only_measurement_errors=False
     ):
         self.qpu = qpu
         self.qubits = qubits
@@ -26,6 +28,8 @@ class REMRequest:
         self.provider = provider
         self.shots = shots
         self.credentials = credentials
+        self.noise_model = noise_model
+        self.only_measurement_errors = only_measurement_errors
 
 
 class CountsField(fields.Field):
@@ -79,3 +83,5 @@ class REMRequestSchema(ma.Schema):
     credentials = ma.fields.Raw(
         required=False, description="Dictionary containing all required credentials"
     )
+    noise_model = ma.fields.Str(required=False)
+    only_measurement_errors = ma.fields.Boolean(required=False)

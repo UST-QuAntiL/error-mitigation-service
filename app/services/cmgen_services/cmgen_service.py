@@ -38,7 +38,7 @@ def generate_cm(request: CMGenRequest):
     circuits = generator.generate_cm_circuits(request.qubits)
     executor = retrieve_executor(request.provider.lower())
     counts = executor.execute_circuits(
-        circuits, request.qpu, request.credentials, request.shots
+        circuits, request.qpu, request.credentials, request.shots, request.noise_model, request.only_measurement_errors
     )
     cm = generator.compute_cm(counts)
     return store_matrix_object_in_db(
@@ -47,6 +47,8 @@ def generate_cm(request: CMGenRequest):
         MatrixType.cm,
         qubits=request.qubits,
         cm_gen_method=request.cm_gen_method,
+        noise_model=request.noise_model,
+        only_measurement_errors=request.only_measurement_errors
     )
 
 
@@ -55,8 +57,10 @@ def retrieve_cm(req: CMGetRequest):
         qpu=req.qpu,
         matrix_type=MatrixType.cm,
         qubits=req.qubits,
-        method=req.cm_gen_method,
+        cm_gen_method=req.cm_gen_method,
         max_age=req.max_age,
+        noise_model=req.noise_model,
+        only_measurement_errors=req.only_measurement_errors
     )
 
 

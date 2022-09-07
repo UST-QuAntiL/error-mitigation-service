@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 import mthree
 import numpy as np
 from scipy.optimize import minimize
+from scipy.sparse import issparse
+from scipy.sparse import csr_matrix
 
 from app.utils.helper_functions import array_to_dict, dict_to_array
 from app.model.matrix_types import MatrixType
@@ -23,7 +25,11 @@ class MatrixMultiplication(MitigationApplication):
         n_qubits = len(kwargs["qubits"])
         counts = kwargs["counts"]
         array_counts = dict_to_array(counts, n_qubits)
-        res = list(np.matmul(mitigator, array_counts))
+        if issparse(mitigator):
+            #res = mitigator.multiply(np.ndarray(array_counts))
+            res = list(np.matmul(mitigator.toarray(), array_counts))
+        else:
+            res = list(np.matmul(mitigator, array_counts))
         return array_to_dict(res, n_qubits)
 
     requires = MatrixType.mm

@@ -1,5 +1,6 @@
 import mthree
 from qiskit import IBMQ
+from qiskit.providers.ibmq import IBMQAccountCredentialsNotFound
 from qiskit_ionq import IonQProvider
 
 from app.database.minio_db import store_matrix_object_in_db, load_matrix_object_from_db
@@ -19,6 +20,9 @@ from datetime import datetime
 def mitigation_generator(method):
     if method == "inversion":
         return MatrixInversion()
+    else:
+        raise Exception("Currently only the Inversion method is supported for the the generation"
+                        " of a storable mitigator that is based on an already existing CM")
 
 
 def generate_mm(request: MMGenRequest):
@@ -32,9 +36,11 @@ def generate_mm(request: MMGenRequest):
 
 
 def generate_mthree_mitigator(request: MMGenRequest):
+    if request.noise_model:
+        raise NotImplementedError("The Mthree library does currently not support noisy simulators")
     try:
         if request.provider == "ibm":
-            provider = IBMQ.enable_account(**credentials)
+            provider = IBMQ.enable_account(**request.credentials)
             backend = provider.get_backend(request.qpu)
             # For testing on a fake backend uncomment below
             # from qiskit.test.mock import FakeMontreal
@@ -57,17 +63,18 @@ def generate_mthree_mitigator(request: MMGenRequest):
     finally:
         if request.provider == "ibm":
             IBMQ.disable_account()
+
     return filename
 
 
 def generate_mm_from_skratch(request: MMGenRequest):
     generator = retrieve_generator(request.mitigation_method)
-    circuits, labels = generator.generate_cm_circuits(request.qubits)
+    circuits = generator.generate_cm_circuits(request.qubits)
     executor = retrieve_executor(request.provider)
     results = executor.execute_circuits(
-        circuits, request.qpu, request.credentials, request.shots
+        circuits, request.qpu, request.credentials, request.shots, request.noise_model, request.only_measurement_errors
     )
-    cm = generator.compute_sparse_mm(results, labels)
+    cm = generator.compute_sparse_mm(results)
     return store_matrix_object_in_db(
         cm,
         request.qpu,
@@ -76,6 +83,8 @@ def generate_mm_from_skratch(request: MMGenRequest):
         cm_gen_method=request.mitigation_method,
         mitigation_method=request.mitigation_method,
         cm_gen_date=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        noise_model=request.noise_model,
+        only_measurement_errors=request.only_measurement_errors,
     )
 
 
@@ -88,6 +97,8 @@ def generate_mm_from_cm(request: MMGenRequest):
             matrix_type=MatrixType.cm,
             cm_gen_method=request.cm_gen_method,
             max_age=request.max_age,
+            noise_model=request.noise_model,
+            only_measurement_errors=request.only_measurement_errors,
         )
     except:
         raise ConnectionError("Could not access DB")
@@ -100,14 +111,20 @@ def generate_mm_from_cm(request: MMGenRequest):
             shots=request.shots,
             credentials=request.credentials,
             provider=request.provider,
+            noise_model=request.noise_model,
+            only_measurement_errors=request.only_measurement_errors,
         )
-        generate_cm(cmgenrequest)
+        print(generate_cm(cmgenrequest))
+        request.max_age = 1 if request.max_age == 0 else request.max_age
+
         cm, metadata = load_matrix_object_from_db(
             qpu=request.qpu,
             qubits=request.qubits,
             matrix_type=MatrixType.cm,
             cm_gen_method=request.cm_gen_method,
             max_age=request.max_age,
+            noise_model=request.noise_model,
+            only_measurement_errors=request.only_measurement_errors,
         )
 
     mitigator = mitigation_generator(request.mitigation_method)
@@ -121,6 +138,8 @@ def generate_mm_from_cm(request: MMGenRequest):
         mitigation_method=request.mitigation_method,
         cmfilename=metadata["name"],
         cm_gen_date=metadata["cm_gen_date"],
+        noise_model=metadata["noise_model"],
+        only_measurement_errors=metadata["only_measurement_errors"],
     )
 
 
@@ -129,8 +148,11 @@ def retrieve_mm(req: MMGetRequest):
         qpu=req.qpu,
         matrix_type=MatrixType.mm,
         qubits=req.qubits,
-        method=req.mitigation_method,
+        mitigation_method=req.mitigation_method,
+        cm_gen_method=req.cm_gen_method,
         max_age=req.max_age,
+        noise_model=req.noise_model,
+        only_measurement_errors=req.only_measurement_errors,
     )
 
 
