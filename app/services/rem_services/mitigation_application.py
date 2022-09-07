@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
-
 import mthree
 import numpy as np
 from scipy.optimize import minimize
 from scipy.sparse import issparse
-from scipy.sparse import csr_matrix
 
 from app.utils.helper_functions import array_to_dict, dict_to_array
 from app.model.matrix_types import MatrixType
@@ -26,7 +24,6 @@ class MatrixMultiplication(MitigationApplication):
         counts = kwargs["counts"]
         array_counts = dict_to_array(counts, n_qubits)
         if issparse(mitigator):
-            # res = mitigator.multiply(np.ndarray(array_counts))
             res = list(np.matmul(mitigator.toarray(), array_counts))
         else:
             res = list(np.matmul(mitigator, array_counts))
@@ -40,7 +37,6 @@ class MthreeApplication(MitigationApplication):
         mit = mthree.M3Mitigation()
         mit.cals_from_matrices(mitigator)
 
-        # result = mitigator.apply_correction(kwargs['counts'], kwargs['qubits'], distance=10)
         print(kwargs["counts"], kwargs["qubits"])
         counts = kwargs["counts"]
         qubits = kwargs["qubits"]
@@ -71,7 +67,6 @@ class IterativeBayesApplication(MitigationApplication):
             multiplicator[np.matmul(cm, tn) == 0] = 0
             tn_new = np.matmul(cm.T, multiplicator) * tn
             n = n + 1
-        # print(n)
         return array_to_dict(tn_new, n_qubits)
 
     requires = MatrixType.cm

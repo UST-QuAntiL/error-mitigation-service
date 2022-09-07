@@ -19,12 +19,11 @@ class FlaskClientTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_app_running(self):
-        # Test for single number
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
 
     def test_cm_noisy_simulator(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/cm/",
             data=json.dumps(
@@ -42,10 +41,9 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
 
     def test_cm_noisy_simulator_only_measure(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/cm/",
             data=json.dumps(
@@ -63,10 +61,9 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
 
     def test_mm_noisy_simulator(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/mm/",
             data=json.dumps(
@@ -86,10 +83,9 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
 
     def test_mm_noisy_simulator_only_measure(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/mm/",
             data=json.dumps(
@@ -108,10 +104,9 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
 
     def test_rem_noisy_simulator_only_measure_standard_inversion(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -164,10 +159,9 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
 
     def test_rem_noisy_simulator_only_measure_ignis(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -220,10 +214,9 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
 
     def test_rem_noisy_simulator_only_measure_bayes(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -276,10 +269,9 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
 
     def test_rem_noisy_simulator_only_measure_tpnm(self):
-        token = os.getenv("token")
+        token = os.environ["TOKEN"]
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -331,4 +323,3 @@ class FlaskClientTestCase(unittest.TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        print(response.get_json())
