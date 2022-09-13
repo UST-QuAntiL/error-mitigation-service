@@ -83,7 +83,7 @@ def generate_mm_from_skratch(request: MMGenRequest):
         request.noise_model,
         request.only_measurement_errors,
     )
-    cm = generator.compute_sparse_mm(results)
+    cm = generator.compute_mm(results)
     return store_matrix_object_in_db(
         cm,
         request.qpu,
@@ -163,20 +163,3 @@ def retrieve_mm(req: MMGetRequest):
         noise_model=req.noise_model,
         only_measurement_errors=req.only_measurement_errors,
     )
-
-
-if __name__ == "__main__":
-    from credentials import Credentials as credentials
-
-    json = {
-        "max_age": 1,
-        "cm_gen_method": "standard",
-        "mitigation_method": "inversion",
-        "qpu": "ibmq_lima",
-        "qubits": [1, 2, 3],
-        "provider": "ibm",
-        "shots": 10,
-        "credentials": credentials.CREDENTIALS_US,
-    }
-    req = MMGenRequest(**json)
-    print(generate_mm(req))

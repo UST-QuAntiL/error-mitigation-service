@@ -9,6 +9,9 @@ from app.utils.helper_functions import ResultsMock
 
 
 class CircuitGenerator(ABC):
+    def __init__(self):
+        self.labels = None
+
     @abstractmethod
     def generate_cm_circuits(self, qubits):
         pass
@@ -19,7 +22,7 @@ class CircuitGenerator(ABC):
 
 class StandardCMGenerator(CircuitGenerator):
     def generate_cm_circuits(self, qubits):
-        state_labels = [bin(j)[2:].zfill(len(qubits)) for j in range(2 ** len(qubits))]
+        self.labels = [bin(j)[2:].zfill(len(qubits)) for j in range(2 ** len(qubits))]
         circuits, _ = tensored_meas_cal([qubits], circlabel="mcal")
         return circuits
 
@@ -27,9 +30,10 @@ class StandardCMGenerator(CircuitGenerator):
         num_qubits = len(list(counts[0].keys())[0])
         matrix = np.zeros((2 ** num_qubits, 2 ** num_qubits))
         shots = np.sum(list(counts[0].values()))
-        state_labels = [bin(j)[2:].zfill(num_qubits) for j in range(2 ** num_qubits)]
+        if self.labels is None:
+            self.labels = [bin(j)[2:].zfill(num_qubits) for j in range(2 ** num_qubits)]
         for i, column in enumerate(counts):
-            for j, bitstring in enumerate(state_labels):
+            for j, bitstring in enumerate(self.labels):
                 if bitstring in column:
                     matrix[j, i] = column[bitstring] / shots
         return matrix
@@ -48,26 +52,26 @@ class TPNMCMGenerator(CircuitGenerator):
             qc1.measure(qr[i], cr[e])
 
         circuits = [qc0, qc1]
+        self.labels = [
+            {"experiment": "meas_mit", "cal": "0" * len(qubits), "method": "tensored"},
+            {"experiment": "meas_mit", "cal": "1" * len(qubits), "method": "tensored"},
+        ]
         return circuits
 
     def compute_cm(self, counts):
-        qubits = len(list(counts[0].keys())[0])
-        state_labels = [
-            {"experiment": "meas_mit", "cal": "0" * qubits, "method": "tensored"},
-            {"experiment": "meas_mit", "cal": "1" * qubits, "method": "tensored"},
-        ]
+        if self.labels is None:
+            num_qubits = len(list(counts[0].keys())[0])
+            self.labels = [
+                {"experiment": "meas_mit", "cal": "0" * num_qubits, "method": "tensored"},
+                {"experiment": "meas_mit", "cal": "1" * num_qubits, "method": "tensored"},
+            ]
         counts = ResultsMock(counts)
-        mitigator_tensored = mit.ExpvalMeasMitigatorFitter(counts, state_labels).fit()
+        mitigator_tensored = mit.ExpvalMeasMitigatorFitter(counts, self.labels).fit()
         return mitigator_tensored.assignment_matrix()
 
-    def compute_sparse_mm(self, counts, sparsity=1e-5):
-        qubits = len(list(counts[0].keys())[0])
-        labels = [
-            {"experiment": "meas_mit", "cal": "0" * qubits, "method": "tensored"},
-            {"experiment": "meas_mit", "cal": "1" * qubits, "method": "tensored"},
-        ]
+    def compute_mm(self, counts, sparsity=1e-5):
         counts = ResultsMock(counts)
-        mitigator_tensored = SparseExpvalMeasMitigatorFitter(counts, labels).fit()
+        mitigator_tensored = SparseExpvalMeasMitigatorFitter(counts, self.labels).fit()
         return mitigator_tensored.mitigation_matrix(sparsity_factor=sparsity)
 
 
@@ -77,13 +81,15 @@ class CTMPCMGenerator(CircuitGenerator):
         circuits, state_labels = mit.expval_meas_mitigator_circuits(
             qubits.size, method="CTMP"
         )
+        self.labels= state_labels
         return circuits
 
     def compute_cm(self, counts):
-        qubits = len(list(counts[0].keys())[0])
-        state_labels = [
-            {"experiment": "meas_mit", "cal": "0" * qubits, "method": "tensored"},
-            {"experiment": "meas_mit", "cal": "1" * qubits, "method": "tensored"},
-        ]
-        mitigator_ctmp = mit.ExpvalMeasMitigatorFitter(counts, state_labels).fit()
+        counts = ResultsMock(counts)
+        mitigator_ctmp = mit.ExpvalMeasMitigatorFitter(counts, self.labels).fit()
         return mitigator_ctmp.assignment_matrix()
+
+    def compute_mm(self, counts):
+        counts = ResultsMock(counts)
+        mitigator_ctmp = SparseExpvalMeasMitigatorFitter(counts, self.labels).fit()
+        return mitigator_ctmp.mitigation_matrix()

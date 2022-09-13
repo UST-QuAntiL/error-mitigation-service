@@ -22,7 +22,7 @@ import itertools
 
 
 def application_generator(method):
-    if method in ["inversion", "tpnm"]:
+    if method in ["inversion", "tpnm", "ctmp"]:
         return MatrixMultiplication()
     if method == "mthree":
         return MthreeApplication()
@@ -172,28 +172,3 @@ def mitigate_results(request: REMRequest):
             else:
                 return "No matching mitigatior available - Add credentials and provider to generate a new mitigator"
     return solution_counts if len(solution_counts) > 1 else solution_counts[0]
-
-
-if __name__ == "__main__":
-    from credentials import Credentials as credentials
-
-    json = {
-        "counts": {
-            "111": 129,
-            "000": 131,
-            "101": 134,
-            "100": 142,
-            "011": 97,
-            "110": 117,
-            "001": 125,
-            "010": 125,
-        },
-        "mitigation_method": "ignis",
-        "cm_gen_method": "standard",
-        "qpu": "ibmq_lima",
-        "qubits": [3, 1, 2],
-        "max_age": 2,
-        "credentials": credentials.CREDENTIALS_US,
-        "provider": "IBM",
-    }
-    print(mitigate_results(REMRequest(**json)))

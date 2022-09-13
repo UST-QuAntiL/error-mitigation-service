@@ -80,18 +80,3 @@ def generate_cm_from_counts(request: CMGenFromCountsRequest):
         qubits=request.qubits,
         cm_gen_method=request.cm_gen_method,
     )
-
-
-if __name__ == "__main__":
-    from credentials import Credentials as credentials
-
-    json = {
-        "cm_gen_method": "tpnm",
-        "qpu": "ibmq_lima",
-        "provider": "ibm",
-        "shots": 1000,
-        "credentials": credentials.CREDENTIALS_US,
-        "qubits": [1, 2, 4],
-    }
-    req = CMGenRequest(**json)
-    res = generate_cm(req)
