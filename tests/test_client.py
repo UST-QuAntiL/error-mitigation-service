@@ -43,6 +43,12 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(".pkl" in response.json)
 
+        response_get = self.client.get(
+            "/cm/?noise_model=ibmq_lima&cm_gen_method=standard&qpu=aer_qasm_simulator&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4&max_age=360"
+        )
+        self.assertEqual(response_get.status_code, 200)
+        self.assertEqual(len(response_get.json), 32)
+
     def test_cm_tpnm_noisy_simulator(self):
         token = os.environ["TOKEN"]
         response = self.client.post(
@@ -105,13 +111,6 @@ class FlaskClientTestCase(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(".pkl" in response.json)
-
-    def test_get_cm_noisy_simulator(self):
-        response = self.client.get(
-            "/cm/?noise_model=ibmq_lima&cm_gen_method=standard&qpu=aer_qasm_simulator&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4&max_age=360"
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json), 32)
 
     def test_cm_noisy_simulator_only_measure(self):
         token = os.environ["TOKEN"]
@@ -179,12 +178,11 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(".pkl" in response.json)
 
-    def test_get_mm_noisy_simulator(self):
-        response = self.client.get(
+        response_get = self.client.get(
             "/mm/?noise_model=ibmq_lima&cm_gen_method=standard&mitigation_method=inversion&qpu=aer_qasm_simulator&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4&max_age=360"
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json), 32)
+        self.assertEqual(response_get.status_code, 200)
+        self.assertEqual(len(response_get.json), 32)
 
     def test_rem_noisy_simulator_only_measure_standard_inversion(self):
         token = os.environ["TOKEN"]
