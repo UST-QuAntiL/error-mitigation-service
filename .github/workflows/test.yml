@@ -32,7 +32,6 @@ jobs:
       timeout-minutes: 1
       uses: codecov/codecov-action@v2
       with:
-        token: "f6e9a3db-8d40-468c-817b-1acabeabc72e"
         fail_ci_if_error: false
         verbose: true
         files: ./coverage.xml
