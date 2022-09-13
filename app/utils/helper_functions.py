@@ -60,7 +60,6 @@ def restore_dict_by_qubitorder(
     return sorted_dict
 
 
-
 class ResultsMock:
     def __init__(self, counts: list):
         """counts: list of dict"""

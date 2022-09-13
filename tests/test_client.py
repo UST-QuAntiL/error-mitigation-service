@@ -70,13 +70,35 @@ class FlaskClientTestCase(unittest.TestCase):
             data=json.dumps(
                 {
                     "counts": [
-                        {"00000": 902, "10000": 39, "00001": 18, "00100": 16, "01000": 7, "00010": 16, "00011": 1,
-                         "10001": 1},
-                        {"11111": 863, "11110": 51, "11101": 30, "11011": 11, "01111": 15, "10111": 15, "01110": 3,
-                         "01101": 4, "11100": 3, "10110": 1, "11010": 2, "10101": 1, "10011": 1}],
+                        {
+                            "00000": 902,
+                            "10000": 39,
+                            "00001": 18,
+                            "00100": 16,
+                            "01000": 7,
+                            "00010": 16,
+                            "00011": 1,
+                            "10001": 1,
+                        },
+                        {
+                            "11111": 863,
+                            "11110": 51,
+                            "11101": 30,
+                            "11011": 11,
+                            "01111": 15,
+                            "10111": 15,
+                            "01110": 3,
+                            "01101": 4,
+                            "11100": 3,
+                            "10110": 1,
+                            "11010": 2,
+                            "10101": 1,
+                            "10011": 1,
+                        },
+                    ],
                     "cm_gen_method": "tpnm",
                     "qpu": "aspen-m-1",
-                    "qubits": [11, 16, 114, 17, 10]
+                    "qubits": [11, 16, 114, 17, 10],
                 }
             ),
             content_type="application/json",
@@ -162,7 +184,7 @@ class FlaskClientTestCase(unittest.TestCase):
             "/mm/?noise_model=ibmq_lima&cm_gen_method=standard&mitigation_method=inversion&qpu=aer_qasm_simulator&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4&max_age=360"
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json),32)
+        self.assertEqual(len(response.json), 32)
 
     def test_rem_noisy_simulator_only_measure_standard_inversion(self):
         token = os.environ["TOKEN"]

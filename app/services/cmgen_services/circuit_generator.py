@@ -62,8 +62,16 @@ class TPNMCMGenerator(CircuitGenerator):
         if self.labels is None:
             num_qubits = len(list(counts[0].keys())[0])
             self.labels = [
-                {"experiment": "meas_mit", "cal": "0" * num_qubits, "method": "tensored"},
-                {"experiment": "meas_mit", "cal": "1" * num_qubits, "method": "tensored"},
+                {
+                    "experiment": "meas_mit",
+                    "cal": "0" * num_qubits,
+                    "method": "tensored",
+                },
+                {
+                    "experiment": "meas_mit",
+                    "cal": "1" * num_qubits,
+                    "method": "tensored",
+                },
             ]
         counts = ResultsMock(counts)
         mitigator_tensored = mit.ExpvalMeasMitigatorFitter(counts, self.labels).fit()
@@ -81,7 +89,7 @@ class CTMPCMGenerator(CircuitGenerator):
         circuits, state_labels = mit.expval_meas_mitigator_circuits(
             qubits.size, method="CTMP"
         )
-        self.labels= state_labels
+        self.labels = state_labels
         return circuits
 
     def compute_cm(self, counts):
