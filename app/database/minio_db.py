@@ -120,7 +120,7 @@ def load_matrix_object_from_db(qpu, matrix_type: MatrixType, **kwargs):
             ]
         if kwargs is not None:
             for k, v in kwargs.items():
-                if k and v and k not in ["max_age", 'qubits']:
+                if k and v and k not in ["max_age", "qubits"]:
                     # Boolean values are stored as strings in the database metadata --> convert to string for comparison
                     v = str(v) if isinstance(v, bool) else v
 
