@@ -5,7 +5,7 @@ from app.model.matrix_types import MatrixType
 from config import Config
 import os
 from datetime import datetime
-
+from scipy.sparse import *
 
 client = Minio(
     Config.MINIO_ENDPOINT,
