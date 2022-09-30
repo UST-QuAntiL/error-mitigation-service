@@ -29,7 +29,12 @@ def mitigation_generator(method):
 
 def generate_mm(request: MMGenRequest):
     mitigation_method = request.mitigation_method
-    if mitigation_method == "tpnm":
+
+    # prioritize sparse tpnm over standard tpnm
+    if mitigation_method == "tpnm" or (
+        mitigation_method in ["inversion", "matrixinversion"]
+        and request.cm_gen_method == "tpnm"
+    ):
         return generate_mm_from_skratch(request)
     elif mitigation_method == "mthree":
         return generate_mthree_mitigator(request)

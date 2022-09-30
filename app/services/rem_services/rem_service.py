@@ -22,7 +22,7 @@ import itertools
 
 
 def application_generator(method):
-    if method in ["inversion", "tpnm", "ctmp"]:
+    if method in ["inversion", "tpnm", "ctmp", "matrixinversion"]:
         return MatrixMultiplication()
     if method == "mthree":
         return MthreeApplication()
@@ -42,7 +42,11 @@ def perform_mitigation(counts, qubits, metadata, application_method, mitigator):
 
 
 def mitigate_results(request: REMRequest):
-    request.provider = request.provider.lower()
+    if request.cm_gen_method == "tpnm" and request.mitigation_method in [
+        "inversion",
+        "matrixinversion",
+    ]:
+        request.mitigation_method = "tpnm"
     application_method = application_generator(request.mitigation_method)
 
     if isinstance(request.qubits[0], int):

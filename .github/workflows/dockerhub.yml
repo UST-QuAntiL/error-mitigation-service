@@ -2,7 +2,7 @@ name: Push docker images to Dockerhub
 
 on:
   push:
-    branches: main
+    branches: master
     tags:
       - "v*.*.*"
 
@@ -26,7 +26,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push latest of error mitigation service
-        if: ${{ steps.vars.outputs.tag == 'main' }}
+        if: ${{ steps.vars.outputs.tag == 'master' }}
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -34,7 +34,7 @@ jobs:
           tags: planqk/error-mitigation-service:latest
 
       - name: Build and push version of error-mitigation-service
-        if: ${{ steps.vars.outputs.tag != 'main' }}
+        if: ${{ steps.vars.outputs.tag != 'master' }}
         uses: docker/build-push-action@v2
         with:
           context: .
