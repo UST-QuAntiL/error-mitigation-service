@@ -20,7 +20,7 @@ class REMRequest:
     ):
         self.qpu = qpu
         self.qubits = qubits
-        self.cm_gen_method = cm_gen_method.lower() if provider else provider
+        self.cm_gen_method = cm_gen_method.lower() if cm_gen_method else cm_gen_method
         self.mitigation_method = mitigation_method.lower()
         self.max_age = max_age
         self.time_of_execution = time_of_execution
