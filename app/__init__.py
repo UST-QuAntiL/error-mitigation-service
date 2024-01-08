@@ -16,6 +16,6 @@ def create_app(config_name="default"):
 
     @app.route("/")
     def heartbeat():
-        return '<h1>The Error-Mitigation Service is Running</h1> <h3>View the API Docs <a href="/app/swagger-ui">here</a></h3>'
+        return '<h1>The Error-Mitigation Service is Running</h1> <h3>View the API Docs <a href="/api/swagger-ui">here</a></h3>'
 
     return app

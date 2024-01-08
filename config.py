@@ -14,8 +14,7 @@ class Config:
 
     API_SPEC_OPTIONS = {
         "info": {
-            "description": "This is the API Specification of the Readout Error Mitigation Service("
-            "https://readthedocs/readout-error-mitigation-service/TOBERELEASED).",
+            "description": "This is the API Specification of the Readout Error Mitigation Service",
         },
         "license": {"name": "Apache v2 License"},
     }

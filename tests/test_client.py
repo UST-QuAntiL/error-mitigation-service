@@ -3,6 +3,9 @@ import os, sys
 import json
 import re
 
+from qiskit import IBMQ
+from tests.utils_test import get_available_qpu
+
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 from app import create_app
@@ -23,18 +26,19 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_cm_noisy_simulator(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/cm/",
             data=json.dumps(
                 {
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": False,
                 }
             ),
@@ -44,24 +48,29 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(".pkl" in response.json)
 
         response_get = self.client.get(
-            "/cm/?noise_model=ibmq_lima&cm_gen_method=standard&qpu=aer_qasm_simulator&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4&max_age=360"
+            "/cm/?noise_model=" + backend +
+            "&cm_gen_method=" + "standard" +
+            "&qpu=aer_qasm_simulator" +
+            "&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4"+
+            "&max_age=360"
         )
         self.assertEqual(response_get.status_code, 200)
         self.assertEqual(len(response_get.json), 32)
 
     def test_cm_tpnm_noisy_simulator(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/cm/",
             data=json.dumps(
                 {
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "tpnm",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": False,
                 }
             ),
@@ -113,18 +122,19 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(".pkl" in response.json)
 
     def test_cm_noisy_simulator_only_measure(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/cm/",
             data=json.dumps(
                 {
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": "True",
                 }
             ),
@@ -134,19 +144,20 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(".pkl" in response.json)
 
     def test_mm_noisy_simulator(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/mm/",
             data=json.dumps(
                 {
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "mitigation_method": "inversion",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": False,
                     "max_age": 0,
                 }
@@ -157,19 +168,20 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(".pkl" in response.json)
 
     def test_mm_noisy_simulator_only_measure(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/mm/",
             data=json.dumps(
                 {
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "mitigation_method": "inversion",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": "True",
                 }
             ),
@@ -179,13 +191,19 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(".pkl" in response.json)
 
         response_get = self.client.get(
-            "/mm/?noise_model=ibmq_lima&cm_gen_method=standard&mitigation_method=inversion&qpu=aer_qasm_simulator&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4&max_age=360"
+            "/mm/?noise_model=" + backend +
+            "&cm_gen_method=standard" +
+            "&mitigation_method=inversion" +
+            "&qpu=aer_qasm_simulator" +
+            "&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4"+
+            "&max_age=360"
         )
         self.assertEqual(response_get.status_code, 200)
         self.assertEqual(len(response_get.json), 32)
 
     def test_rem_noisy_simulator_only_measure_standard_inversion(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -225,12 +243,12 @@ class FlaskClientTestCase(unittest.TestCase):
                     },
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "mitigation_method": "inversion",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": "True",
                     "max_age": 0,
                 }
@@ -241,7 +259,8 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue("11110" in response.json.keys())
 
     def test_rem_noisy_simulator_only_measure_standard_inversion_reuse_mitigator(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -281,12 +300,12 @@ class FlaskClientTestCase(unittest.TestCase):
                     },
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "mitigation_method": "inversion",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": "True",
                     "max_age": 300,
                 }
@@ -297,7 +316,8 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue("11110" in response.json.keys())
 
     def test_rem_noisy_simulator_only_measure_ignis(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -337,12 +357,12 @@ class FlaskClientTestCase(unittest.TestCase):
                     },
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "mitigation_method": "ignis",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": "True",
                     "max_age": 0,
                 }
@@ -353,7 +373,8 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue("11110" in response.json.keys())
 
     def test_rem_noisy_simulator_only_measure_bayes(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -393,12 +414,12 @@ class FlaskClientTestCase(unittest.TestCase):
                     },
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "cm_gen_method": "standard",
                     "mitigation_method": "bayes",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": "True",
                     "max_age": 0,
                 }
@@ -409,7 +430,8 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue("11110" in response.json.keys())
 
     def test_rem_noisy_simulator_only_measure_tpnm(self):
-        token = os.environ["TOKEN"]
+        credentials = {"token": os.environ["TOKEN"]}
+        backend = get_available_qpu(credentials)
         response = self.client.post(
             "/rem/",
             data=json.dumps(
@@ -449,11 +471,11 @@ class FlaskClientTestCase(unittest.TestCase):
                     },
                     "provider": "IBM",
                     "qpu": "aer_qasm_simulator",
-                    "credentials": {"token": token},
+                    "credentials": credentials,
                     "qubits": [0, 1, 2, 3, 4],
                     "mitigation_method": "tpnm",
                     "shots": 1000,
-                    "noise_model": "ibmq_lima",
+                    "noise_model": backend,
                     "only_measurement_errors": "True",
                     "max_age": 0,
                 }
