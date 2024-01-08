@@ -48,11 +48,13 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(".pkl" in response.json)
 
         response_get = self.client.get(
-            "/cm/?noise_model=" + backend +
-            "&cm_gen_method=" + "standard" +
-            "&qpu=aer_qasm_simulator" +
-            "&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4"+
-            "&max_age=360"
+            "/cm/?noise_model="
+            + backend
+            + "&cm_gen_method="
+            + "standard"
+            + "&qpu=aer_qasm_simulator"
+            + "&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4"
+            + "&max_age=360"
         )
         self.assertEqual(response_get.status_code, 200)
         self.assertEqual(len(response_get.json), 32)
@@ -191,12 +193,13 @@ class FlaskClientTestCase(unittest.TestCase):
         self.assertTrue(".pkl" in response.json)
 
         response_get = self.client.get(
-            "/mm/?noise_model=" + backend +
-            "&cm_gen_method=standard" +
-            "&mitigation_method=inversion" +
-            "&qpu=aer_qasm_simulator" +
-            "&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4"+
-            "&max_age=360"
+            "/mm/?noise_model="
+            + backend
+            + "&cm_gen_method=standard"
+            + "&mitigation_method=inversion"
+            + "&qpu=aer_qasm_simulator"
+            + "&qubits=0&qubits=1&qubits=2&qubits=3&qubits=4"
+            + "&max_age=360"
         )
         self.assertEqual(response_get.status_code, 200)
         self.assertEqual(len(response_get.json), 32)
