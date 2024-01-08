@@ -15,7 +15,7 @@ from app.services.cmgen_services.circuit_generator import (
 
 def retrieve_executor(provider: str):
     provider = provider.lower()
-    if provider == "ibm":
+    if provider in ["ibm", "ibmq"]:
         return IBMCircuitExecutor()
     if provider == "ionq":
         return IonQCircuitExecutor()

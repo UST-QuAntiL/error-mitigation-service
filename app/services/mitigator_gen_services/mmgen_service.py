@@ -18,7 +18,7 @@ from datetime import datetime
 
 
 def mitigation_generator(method):
-    if method == "inversion":
+    if method.lower() in ["inversion", "matrixinversion"]:
         return MatrixInversion()
     else:
         raise Exception(
